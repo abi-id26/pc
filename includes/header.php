@@ -59,13 +59,11 @@ if (session_status() === PHP_SESSION_NONE) {
                         <span class="store-badge ml-2 px-2 py-1 bg-wood-dark text-white text-xs uppercase rounded-md">Store</span>
                     </div>
                 </a>
-                
                 <button id="menuButton" class="lg:hidden focus:outline-none wooden-button py-2 px-3">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
                     </svg>
             </button>
-                
                 <div id="navMenu" class="hidden w-full lg:flex lg:items-center lg:w-auto">
                     <ul class="flex flex-col lg:flex-row lg:ml-auto space-y-2 lg:space-y-0 lg:space-x-1 mt-3 lg:mt-0">
                         <li>
@@ -108,9 +106,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             </a>
                         </li>
                     </ul>
-                    
                     <div class="border-t lg:border-t-0 lg:border-l border-wood-tan my-3 lg:my-0 lg:mx-4 lg:h-8"></div>
-                    
                     <ul class="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-1 mt-3 lg:mt-0">
                         <?php if (isset($_SESSION['user_id'])): ?>
                             <li class="relative group">
@@ -146,7 +142,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         <li>
                             <a class="cart-link block px-4 py-2 rounded-lg hover:bg-wood-tan transition-all duration-300" href="/pc-hardware-store/cart.php">
                                 <i class="fas fa-shopping-cart mr-2"></i>Cart
-                            <?php 
+                            <?php
                             $cart_count = 0;
                             if (isset($_SESSION['cart'])) {
                                 foreach ($_SESSION['cart'] as $item) {
@@ -164,46 +160,30 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
         </div>
     </header>
-
     <script>
         $(document).ready(function() {
-            // Enhance wooden header with texture animation
             $('.wooden-texture').each(function() {
                 $(this).css({
                     'background-image': 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z\' fill=\'%235c4033\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
                     'background-color': '#deb887'
                 });
             });
-
-            // Mobile menu toggle with slide effect
             $('#menuButton').click(function() {
                 $('#navMenu').slideToggle(300);
             });
-
-            // Products dropdown with fade effect
             $('#productsDropdown').click(function(e) {
                 e.stopPropagation();
                 $('#productsMenu').fadeToggle(200);
-                
-                // Close user menu if open
                 $('#userMenu').fadeOut(200);
             });
-
-            // User dropdown with fade effect
             $('#userDropdown').click(function(e) {
                 e.stopPropagation();
                 $('#userMenu').fadeToggle(200);
-                
-                // Close products menu if open
                 $('#productsMenu').fadeOut(200);
             });
-
-            // Close dropdowns when clicking outside
             $(document).click(function() {
                 $('.wooden-dropdown').fadeOut(200);
             });
-            
-            // Add hover effects to navigation links
             $('.nav-link').hover(
                 function() {
                     $(this).addClass('nav-hover');
@@ -212,8 +192,6 @@ if (session_status() === PHP_SESSION_NONE) {
                     $(this).removeClass('nav-hover');
                 }
             );
-            
-            // Add hover effect to dropdown items
             $('.dropdown-item').hover(
                 function() {
                     $(this).addClass('dropdown-hover');
@@ -224,8 +202,6 @@ if (session_status() === PHP_SESSION_NONE) {
                     $(this).find('i').removeClass('fa-bounce');
                 }
             );
-            
-            // Logo hover effect
             $('.store-logo').hover(
                 function() {
                     $('.logo-icon i').addClass('fa-beat-fade');
@@ -236,8 +212,6 @@ if (session_status() === PHP_SESSION_NONE) {
                     $('.store-badge').removeClass('badge-hover');
                 }
             );
-            
-            // Cart icon effect
             $('.cart-link').hover(
                 function() {
                     $(this).find('i').addClass('fa-shake');

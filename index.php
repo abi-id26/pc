@@ -1,80 +1,56 @@
 <?php
 require_once 'includes/db.php';
 require_once 'includes/header.php';
-
-// Get category filter and search query if set
 $category = isset($_GET['category']) ? $_GET['category'] : null;
 $search = isset($_GET['search']) ? trim($_GET['search']) : null;
-
-// Pagination settings
-$productsPerPage = 8; // Number of products per page
+$productsPerPage = 8;
 $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($currentPage < 1) $currentPage = 1;
 $offset = ($currentPage - 1) * $productsPerPage;
-
-// Build count query to get total results
 $countQuery = "SELECT COUNT(*) as total FROM products WHERE 1=1";
 $countParams = [];
-
 if ($category) {
     $countQuery .= " AND category = :category";
     $countParams[':category'] = $category;
 }
-
 if ($search) {
     $countQuery .= " AND (name LIKE :search OR description LIKE :search)";
     $countParams[':search'] = "%$search%";
 }
-
 $countStmt = $pdo->prepare($countQuery);
 $countStmt->execute($countParams);
 $totalProducts = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 $totalPages = ceil($totalProducts / $productsPerPage);
-
-// Build product query with pagination
 $query = "SELECT * FROM products WHERE 1=1";
 $params = [];
-
 if ($category) {
     $query .= " AND category = :category";
     $params[':category'] = $category;
 }
-
 if ($search) {
     $query .= " AND (name LIKE :search OR description LIKE :search)";
     $params[':search'] = "%$search%";
 }
-
 $query .= " LIMIT :limit OFFSET :offset";
-
 $stmt = $pdo->prepare($query);
-
-// Bind parameters
 foreach ($params as $key => $value) {
     $stmt->bindValue($key, $value);
 }
-
-// Bind limit and offset as integers
 $stmt->bindValue(':limit', $productsPerPage, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
 $stmt->execute();
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <style>
-    /* Products animations */
     .product-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         overflow: hidden;
         position: relative;
     }
-    
     .product-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
-    
     .wooden-texture-overlay {
         position: absolute;
         top: 0;
@@ -86,36 +62,30 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         opacity: 0.08;
         pointer-events: none;
     }
-
-    /* Welcome section styles */
     .welcome-section {
         position: relative;
-        background-color: #f8f0e3;
+        background-color:
         border-radius: 0.5rem;
-        border: 1px solid #d2b48c;
+        border: 1px solid
         box-shadow: 0 4px 6px rgba(139, 69, 19, 0.1);
         overflow: hidden;
     }
-
     .welcome-section h2 {
         text-shadow: 1px 1px 2px rgba(139, 69, 19, 0.2);
     }
-    
     .welcome-section .wooden-cart-button {
-        background-color: #8b4513;
-        color: #fff;
+        background-color:
+        color:
         border-radius: 0.25rem;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
     }
-    
     .welcome-section .wooden-cart-button:hover {
-        background-color: #a0522d;
+        background-color:
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(139, 69, 19, 0.2);
     }
-    
     .welcome-section .wooden-cart-button::before {
         content: '';
         position: absolute;
@@ -129,7 +99,6 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         pointer-events: none;
     }
 </style>
-
 <div class="container mx-auto px-4 py-8">
     <div class="wood-breadcrumbs">
         <div class="wood-breadcrumb-item">
@@ -148,7 +117,6 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
                     <?php endif; ?>
     </div>
-
     <div class="wood-card welcome-section mb-8 p-6">
         <div class="wooden-texture-overlay"></div>
         <div class="relative z-10">
@@ -166,7 +134,6 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
-
     <div class="mb-8">
         <h2 class="page-title text-xl mb-4">Categories</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -244,7 +211,6 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </a>
         </div>
     </div>
-
     <div class="mb-8">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6">
             <div>
@@ -259,7 +225,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <input type="hidden" name="category" value="<?= htmlspecialchars($category) ?>">
                         <?php endif; ?>
                     <div class="relative flex w-full md:w-96">
-                        <input type="text" class="wood-input w-full px-4 py-2 rounded-l-md text-lg" 
+                        <input type="text" class="wood-input w-full px-4 py-2 rounded-l-md text-lg"
                                placeholder="Search products..." name="search" value="<?= htmlspecialchars($search ?? '') ?>">
                         <button class="wooden-cart-button px-6 py-2 rounded-r-md text-lg" type="submit">
                             <i class="fas fa-search"></i>
@@ -269,7 +235,6 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
-
     <?php if (empty($products)): ?>
         <div class="wood-card p-4 text-center">
             <div class="card-content">
@@ -314,39 +279,31 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             <?php endforeach; ?>
         </div>
-        
         <div class="wood-pagination mt-10">
             <?php if ($currentPage > 1): ?>
                 <a href="?<?= http_build_query(array_merge($_GET, ['page' => $currentPage - 1])) ?>#products" class="wood-page-link"><i class="fas fa-chevron-left"></i></a>
             <?php else: ?>
                 <span class="wood-page-link disabled"><i class="fas fa-chevron-left"></i></span>
             <?php endif; ?>
-            
-            <?php 
-            // Show appropriate page numbers
+            <?php
             $startPage = max(1, min($currentPage - 1, $totalPages - 4));
             $endPage = min($totalPages, max(5, $currentPage + 1));
-            
-            for ($i = $startPage; $i <= $endPage; $i++): 
+            for ($i = $startPage; $i <= $endPage; $i++):
             ?>
-                <a href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>#products" 
+                <a href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>#products"
                    class="wood-page-link <?= $i == $currentPage ? 'active' : '' ?>"><?= $i ?></a>
             <?php endfor; ?>
-            
             <?php if ($currentPage < $totalPages): ?>
                 <a href="?<?= http_build_query(array_merge($_GET, ['page' => $currentPage + 1])) ?>#products" class="wood-page-link"><i class="fas fa-chevron-right"></i></a>
             <?php else: ?>
                 <span class="wood-page-link disabled"><i class="fas fa-chevron-right"></i></span>
             <?php endif; ?>
-            
             <span class="ml-3 text-sm text-amber-900">
                 Page <?= $currentPage ?> of <?= $totalPages ?> (<?= $totalProducts ?> products)
             </span>
         </div>
     <?php endif; ?>
-    
     <div class="wooden-divider my-10"></div>
-    
     <div class="mb-10">
         <h2 class="page-title text-xl">Popular Categories</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
@@ -377,23 +334,17 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 </div>
-
 <?php require_once 'includes/footer.php'; ?>
-
 <script>
 $(document).ready(function() {
-    // Add wood texture to cards
     $('.wood-card').each(function() {
         $(this).prepend('<div class="wooden-texture-footer absolute inset-0" style="background-image:url(\'assets/images/wood-texture.png\')"></div>');
     });
-    
-    // Animate product cards on page load
     $('.product-card').each(function(index) {
         $(this).addClass('opacity-0').css({
             'animation': 'none',
             'transform': 'translateY(20px)'
         });
-        
         let $card = $(this);
         setTimeout(function() {
             $card.animate({
@@ -402,8 +353,6 @@ $(document).ready(function() {
             }, 400 + (index * 100), 'easeOutCubic');
         }, 100 + (index * 50));
     });
-    
-    // Enhanced hover effect for product cards
     $('.product-card').hover(
         function() {
             $(this).find('img').animate({ transform: 'scale(1.05)' }, 300);
@@ -414,25 +363,19 @@ $(document).ready(function() {
             $(this).find('.wood-card-title').css('color', '#5c4033');
         }
     );
-    
-    // Add to cart button click effect
     $('.add-to-cart-btn').click(function() {
         $(this).closest('.product-card').addClass('added-to-cart')
             .delay(300).queue(function(){
                 $(this).removeClass('added-to-cart').dequeue();
             });
-        
-        // Add a small bounce to the SVG icon
         $(this).find('svg').animate(
-            { transform: 'translateZ(20px) scale(1.3)' }, 
-            100, 
+            { transform: 'translateZ(20px) scale(1.3)' },
+            100,
             function() {
                 $(this).animate({ transform: 'translateZ(10px) scale(1)' }, 200);
             }
         );
     });
-    
-    // Add hover effect to payment icons
     $('.payment-icon').hover(
         function() {
             $(this).addClass('payment-icon-hover');

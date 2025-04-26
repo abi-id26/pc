@@ -1,13 +1,9 @@
 <?php
-ob_start(); // Start output buffering
+ob_start();
 session_start();
 include 'includes/header.php';
 include 'includes/db.php';
-
-// Assign the PDO instance to $db
 $db = $pdo;
-
-// Initialize session for build if not already set
 if (!isset($_SESSION['pc_build'])) {
     $_SESSION['pc_build'] = [
         'cpu' => null,
@@ -20,21 +16,16 @@ if (!isset($_SESSION['pc_build'])) {
         'case' => null
     ];
 }
-
-// Fetch components from the database
 function fetchComponents($type, $db, $filters = []) {
     $query = "SELECT * FROM products WHERE category = ?";
     $params = [$type];
-
-    // Add filters for compatibility
     if (isset($filters['socket_type'])) {
-        // Modified to handle multiple socket types and to ensure proper compatibility
         $query .= " AND (socket_type = ? OR socket_type LIKE ? OR socket_type LIKE ? OR socket_type LIKE ? OR socket_type = 'Universal')";
         $socketType = $filters['socket_type'];
-        $params[] = $socketType;  // Exact match
-        $params[] = "$socketType,%";  // Starts with socketType
-        $params[] = "%,$socketType,%";  // Contains socketType in the middle
-        $params[] = "%,$socketType";  // Ends with socketType
+        $params[] = $socketType;
+        $params[] = "$socketType,%";
+        $params[] = "%,$socketType,%";
+        $params[] = "%,$socketType";
     }
     if (isset($filters['ram_type'])) {
         $query .= " AND ram_type = ?";
@@ -49,34 +40,25 @@ function fetchComponents($type, $db, $filters = []) {
         $params[] = $filters['id'];
     }
     if (isset($filters['wattage'])) {
-        $query .= " AND wattage >= ?"; // Ensure PSU wattage is sufficient
+        $query .= " AND wattage >= ?";
         $params[] = $filters['wattage'];
     }
-
     $stmt = $db->prepare($query);
     $stmt->execute($params);
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Debugging output
     error_log("Query: $query");
     error_log("Params: " . json_encode($params));
     error_log("Results: " . json_encode($results));
-
     return $results;
 }
-
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $componentType = $_POST['component_type'];
     $componentId = $_POST['component_id'];
     $_SESSION['pc_build'][$componentType] = $componentId;
-
-    // If the user finishes building the PC, add all selected items to the cart
     if ($componentType === 'case') {
         if (!isset($_SESSION['cart'])) {
             $_SESSION['cart'] = [];
         }
-
         foreach ($_SESSION['pc_build'] as $type => $id) {
             if ($id) {
                 if (isset($_SESSION['cart'][$id])) {
@@ -86,56 +68,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-
-        // Clear the PC build session after adding to cart
         unset($_SESSION['pc_build']);
-
-        // Redirect to the cart page
         header('Location: cart.php');
         exit;
     }
-
     header('Location: build_pc.php');
     exit;
 }
-
-// Calculate the progress of PC build
 function calculateProgress() {
-    $totalSteps = 8; // Total number of components (updated from 7 to 8)
+    $totalSteps = 8;
     $completedSteps = 0;
-    
     foreach ($_SESSION['pc_build'] as $component => $value) {
         if ($value !== null) {
             $completedSteps++;
         }
     }
-    
     return round(($completedSteps / $totalSteps) * 100);
 }
-
 $progress = calculateProgress();
 ?>
-
 <style>
-    /* Component Card Styles */
     .component-card {
         transition: all 0.3s ease;
         overflow: hidden;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
-    
     .component-card.selected {
-        background-color: #fef3c7 !important;
+        background-color:
         box-shadow: 0 4px 12px rgba(180, 83, 9, 0.2) !important;
         transform: translateY(-5px);
-        border-color: #92400e !important;
+        border-color:
     }
-    
     .component-image {
         transition: transform 0.3s ease;
         object-fit: contain;
     }
-    
     .component-name {
         font-size: 0.9rem;
         line-height: 1.3;
@@ -146,46 +113,34 @@ $progress = calculateProgress();
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    
     .selected-indicator {
         transition: opacity 0.3s ease;
     }
-    
-    /* Component Spec Badge Styles */
     .component-card .text-xs {
         font-size: 0.7rem;
     }
-    
-    /* Gallery Animation */
     .component-gallery {
         opacity: 0;
         animation: fadeIn 0.5s ease forwards;
     }
-    
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    
-    /* Progress Bar Animation */
     .progress-animation {
         transition: width 1s ease;
     }
-    
-    /* Improve Responsive Behavior */
     @media (max-width: 768px) {
         .component-gallery {
             grid-template-columns: repeat(2, 1fr);
         }
     }
-    
     @media (max-width: 640px) {
         .component-gallery {
             grid-template-columns: repeat(1, 1fr);
         }
     }
 </style>
-
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumbs -->
     <div class="wood-breadcrumbs mb-6">
@@ -196,9 +151,7 @@ $progress = calculateProgress();
             Build Your PC
         </div>
     </div>
-
     <h1 class="page-title text-2xl mb-6">Custom PC Builder</h1>
-    
     <!-- Progress bar -->
     <div class="wood-card p-4 mb-6">
         <div class="card-content">
@@ -209,7 +162,6 @@ $progress = calculateProgress();
                 </div>
                 <p class="text-amber-800 text-right mt-1 font-medium"><?= $progress ?>% complete</p>
             </div>
-            
             <!-- Steps Indicator -->
             <div class="grid grid-cols-8 gap-2 mt-6">
                 <?php
@@ -223,15 +175,12 @@ $progress = calculateProgress();
                     ['psu', 'PSU', 'fa-plug'],
                     ['case', 'Case', 'fa-desktop']
                 ];
-                
                 foreach ($steps as $index => $step) {
                     $key = $step[0];
                     $label = $step[1];
                     $icon = $step[2];
                     $isCompleted = $_SESSION['pc_build'][$key] !== null;
                     $isActive = false;
-                    
-                    // Find the first incomplete step to mark as active
                     if (!$isCompleted) {
                         $allPreviousCompleted = true;
                         for ($i = 0; $i < $index; $i++) {
@@ -244,7 +193,6 @@ $progress = calculateProgress();
                             $isActive = true;
                         }
                     }
-                    
                     $bgColor = $isCompleted ? 'bg-green-600' : ($isActive ? 'bg-amber-600' : 'bg-amber-200');
                     $textColor = $isCompleted || $isActive ? 'text-white' : 'text-amber-800';
                     $borderColor = $isActive ? 'border-amber-600' : ($isCompleted ? 'border-green-600' : 'border-amber-200');
@@ -264,7 +212,6 @@ $progress = calculateProgress();
             </div>
         </div>
     </div>
-
     <!-- Two-column layout for PC Builder -->
     <div class="flex flex-col lg:flex-row gap-6">
         <!-- Left column - Component Selection -->
@@ -280,11 +227,9 @@ $progress = calculateProgress();
                         <div class="p-6 card-content">
                             <div class="mb-6">
                                 <p class="wood-card-text mb-4">The CPU (Central Processing Unit) is the brain of your computer. It handles all the instructions you give your computer and the applications you run.</p>
-                                
                                 <label for="cpu-select" class="wood-label flex items-center">
                                     <i class="fas fa-microchip mr-2 text-amber-800"></i> Choose a CPU:
                                 </label>
-                                
                                 <div class="component-gallery grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                     <?php
                                     $cpus = fetchComponents('CPU', $db);
@@ -306,7 +251,6 @@ $progress = calculateProgress();
                                     </label>
                                     <?php endforeach; ?>
                                 </div>
-
                                 <!-- Fallback select dropdown for mobile devices -->
                                 <select id="cpu-select" name="component_id_mobile" class="wood-input mt-4 md:hidden">
                                     <option value="">-- Select CPU --</option>
@@ -317,9 +261,7 @@ $progress = calculateProgress();
                                     ?>
                                 </select>
                             </div>
-                            
                             <div class="wooden-divider"></div>
-                            
                             <div class="flex justify-end mt-6">
                                 <input type="hidden" name="component_type" value="cpu">
                                 <button type="submit" class="wooden-cart-button">
@@ -339,12 +281,10 @@ $progress = calculateProgress();
                         <div class="p-6 card-content">
                             <div class="mb-6">
                                 <p class="wood-card-text mb-4">The CPU cooler keeps your processor from overheating. It's essential for maintaining optimal performance and extending the lifespan of your CPU.</p>
-                                
                                 <?php
                                 $cpuId = $_SESSION['pc_build']['cpu'];
                                 $cpu = fetchComponents('CPU', $db, ['id' => $cpuId])[0];
                                 ?>
-                                
                                 <div class="flex flex-col md:flex-row gap-4 mb-4">
                                     <div class="wood-card bg-opacity-50 p-4 flex-1">
                                         <h3 class="wood-card-title">Selected CPU</h3>
@@ -352,11 +292,9 @@ $progress = calculateProgress();
                                         <p class="text-sm text-amber-700">Socket: <?= $cpu['socket_type'] ?></p>
                                     </div>
                                 </div>
-                                
                                 <label for="cpu-cooler-select" class="wood-label flex items-center">
                                     <i class="fas fa-fan mr-2 text-amber-800"></i> Choose a Compatible CPU Cooler:
                                 </label>
-                                
                                 <div class="component-gallery grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                     <?php
                                     $cpu_coolers = fetchComponents('CPU Cooler', $db, ['socket_type' => $cpu['socket_type']]);
@@ -376,7 +314,7 @@ $progress = calculateProgress();
                                             <i class="fas fa-check-circle text-green-600 text-xl"></i>
                                         </div>
                                     </label>
-                                    <?php 
+                                    <?php
                                         endforeach;
                                     else:
                                     ?>
@@ -385,7 +323,6 @@ $progress = calculateProgress();
                                     </div>
                                     <?php endif; ?>
                                 </div>
-
                                 <!-- Fallback select dropdown for mobile devices -->
                                 <select id="cpu-cooler-select" name="component_id_mobile" class="wood-input mt-4 md:hidden">
                                     <option value="">-- Select CPU Cooler --</option>
@@ -396,9 +333,7 @@ $progress = calculateProgress();
                                     ?>
                                 </select>
                             </div>
-                            
                             <div class="wooden-divider"></div>
-                            
                             <div class="flex justify-between mt-6">
                                 <a href="reset_build.php?component=cpu" class="wooden-cart-button bg-red-700">
                                     <i class="fas fa-arrow-left mr-2"></i>
@@ -422,12 +357,10 @@ $progress = calculateProgress();
                         <div class="p-6 card-content">
                             <div class="mb-6">
                                 <p class="wood-card-text mb-4">The motherboard is the main circuit board of your computer. It connects all the parts of your PC together and allows them to communicate with each other.</p>
-                                
                                 <?php
                                 $cpuId = $_SESSION['pc_build']['cpu'];
                                 $cpu = fetchComponents('cpu', $db, ['id' => $cpuId])[0];
                                 ?>
-                                
                                 <div class="flex flex-col md:flex-row gap-4 mb-4">
                                     <div class="wood-card bg-opacity-50 p-4 flex-1">
                                         <h3 class="wood-card-title">Selected CPU</h3>
@@ -435,11 +368,9 @@ $progress = calculateProgress();
                                         <p class="text-sm text-amber-700">Socket: <?= $cpu['socket_type'] ?></p>
                                     </div>
                                 </div>
-                                
                                 <label for="motherboard-select" class="wood-label flex items-center">
                                     <i class="fas fa-server mr-2 text-amber-800"></i> Choose a Compatible Motherboard:
                                 </label>
-                                
                                 <div class="component-gallery grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                     <?php
                                     $motherboards = fetchComponents('Motherboard', $db, ['socket_type' => $cpu['socket_type']]);
@@ -464,7 +395,7 @@ $progress = calculateProgress();
                                             <i class="fas fa-check-circle text-green-600 text-xl"></i>
                                         </div>
                                     </label>
-                                    <?php 
+                                    <?php
                                         endforeach;
                                     else:
                                     ?>
@@ -473,7 +404,6 @@ $progress = calculateProgress();
                                     </div>
                                     <?php endif; ?>
                                 </div>
-
                                 <!-- Fallback select dropdown for mobile devices -->
                                 <select id="motherboard-select" name="component_id_mobile" class="wood-input mt-4 md:hidden">
                                     <option value="">-- Select Motherboard --</option>
@@ -484,9 +414,7 @@ $progress = calculateProgress();
                                     ?>
                                 </select>
                             </div>
-                            
                             <div class="wooden-divider"></div>
-                            
                             <div class="flex justify-between mt-6">
                                 <a href="reset_build.php?component=cpu_cooler" class="wooden-cart-button bg-red-700">
                                     <i class="fas fa-arrow-left mr-2"></i>
@@ -510,12 +438,10 @@ $progress = calculateProgress();
                         <div class="p-6 card-content">
                             <div class="mb-6">
                                 <p class="wood-card-text mb-4">RAM (Random Access Memory) is your computer's short-term memory. It temporarily stores data that your CPU needs to access quickly.</p>
-                                
                                 <?php
                                 $motherboardId = $_SESSION['pc_build']['motherboard'];
                                 $motherboard = fetchComponents('motherboard', $db, ['id' => $motherboardId])[0];
                                 ?>
-                                
                                 <div class="flex flex-col md:flex-row gap-4 mb-4">
                                     <div class="wood-card bg-opacity-50 p-4 flex-1">
                                         <h3 class="wood-card-title">Selected Motherboard</h3>
@@ -523,11 +449,9 @@ $progress = calculateProgress();
                                         <p class="text-sm text-amber-700">RAM Type: <?= $motherboard['ram_type'] ?></p>
                                     </div>
                                 </div>
-                                
                                 <label for="ram-select" class="wood-label flex items-center">
                                     <i class="fas fa-memory mr-2 text-amber-800"></i> Choose Compatible RAM:
                                 </label>
-                                
                                 <div class="component-gallery grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                     <?php
                                     $rams = fetchComponents('RAM', $db, ['ram_type' => $motherboard['ram_type']]);
@@ -548,7 +472,7 @@ $progress = calculateProgress();
                                             <i class="fas fa-check-circle text-green-600 text-xl"></i>
                                         </div>
                                     </label>
-                                    <?php 
+                                    <?php
                                         endforeach;
                                     else:
                                     ?>
@@ -557,7 +481,6 @@ $progress = calculateProgress();
                                     </div>
                                     <?php endif; ?>
                                 </div>
-
                                 <!-- Fallback select dropdown for mobile devices -->
                                 <select id="ram-select" name="component_id_mobile" class="wood-input mt-4 md:hidden">
                                     <option value="">-- Select RAM --</option>
@@ -568,9 +491,7 @@ $progress = calculateProgress();
                                     ?>
                                 </select>
                             </div>
-                            
                             <div class="wooden-divider"></div>
-                            
                             <div class="flex justify-between mt-6">
                                 <a href="reset_build.php?component=motherboard" class="wooden-cart-button bg-red-700">
                                     <i class="fas fa-arrow-left mr-2"></i>
@@ -594,11 +515,9 @@ $progress = calculateProgress();
                         <div class="p-6 card-content">
                             <div class="mb-6">
                                 <p class="wood-card-text mb-4">Storage is where all your files, programs, and operating system are saved. Choose between fast SSDs or high-capacity HDDs.</p>
-                                
                                 <label for="storage-select" class="wood-label flex items-center">
                                     <i class="fas fa-hdd mr-2 text-amber-800"></i> Choose Storage:
                                 </label>
-                                
                                 <div class="component-gallery grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                     <?php
                                     $storages = fetchComponents('Storage', $db);
@@ -619,7 +538,6 @@ $progress = calculateProgress();
                                     </label>
                                     <?php endforeach; ?>
                                 </div>
-
                                 <!-- Fallback select dropdown for mobile devices -->
                                 <select id="storage-select" name="component_id_mobile" class="wood-input mt-4 md:hidden">
                                     <option value="">-- Select Storage --</option>
@@ -630,9 +548,7 @@ $progress = calculateProgress();
                                     ?>
                                 </select>
                             </div>
-                            
                             <div class="wooden-divider"></div>
-                            
                             <div class="flex justify-between mt-6">
                                 <a href="reset_build.php?component=ram" class="wooden-cart-button bg-red-700">
                                     <i class="fas fa-arrow-left mr-2"></i>
@@ -656,11 +572,9 @@ $progress = calculateProgress();
                         <div class="p-6 card-content">
                             <div class="mb-6">
                                 <p class="wood-card-text mb-4">The GPU (Graphics Processing Unit) handles rendering images, videos, and animations. It's essential for gaming and graphic design.</p>
-                                
                                 <label for="gpu-select" class="wood-label flex items-center">
                                     <i class="fas fa-tv mr-2 text-amber-800"></i> Choose a GPU:
                                 </label>
-                                
                                 <div class="component-gallery grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                     <?php
                                     $gpus = fetchComponents('GPU', $db);
@@ -684,7 +598,6 @@ $progress = calculateProgress();
                                     </label>
                                     <?php endforeach; ?>
                                 </div>
-
                                 <!-- Fallback select dropdown for mobile devices -->
                                 <select id="gpu-select" name="component_id_mobile" class="wood-input mt-4 md:hidden">
                                     <option value="">-- Select GPU --</option>
@@ -695,9 +608,7 @@ $progress = calculateProgress();
                                     ?>
                                 </select>
                             </div>
-                            
                             <div class="wooden-divider"></div>
-                            
                             <div class="flex justify-between mt-6">
                                 <a href="reset_build.php?component=storage" class="wooden-cart-button bg-red-700">
                                     <i class="fas fa-arrow-left mr-2"></i>
@@ -721,12 +632,10 @@ $progress = calculateProgress();
                         <div class="p-6 card-content">
                             <div class="mb-6">
                                 <p class="wood-card-text mb-4">The PSU (Power Supply Unit) delivers power to all components in your PC. Make sure it provides enough wattage for your build.</p>
-                                
                                 <?php
                                 $gpuId = $_SESSION['pc_build']['gpu'];
                                 $gpu = $gpuId ? fetchComponents('GPU', $db, ['id' => $gpuId])[0] : null;
                                 ?>
-                                
                                 <?php if ($gpu): ?>
                                 <div class="flex flex-col md:flex-row gap-4 mb-4">
                                     <div class="wood-card bg-opacity-50 p-4 flex-1">
@@ -736,11 +645,9 @@ $progress = calculateProgress();
                                     </div>
                                 </div>
                                 <?php endif; ?>
-                                
                                 <label for="psu-select" class="wood-label flex items-center">
                                     <i class="fas fa-plug mr-2 text-amber-800"></i> Choose a PSU:
                                 </label>
-                                
                                 <div class="component-gallery grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                     <?php
                                     $psus = $gpu ? fetchComponents('Power Supply', $db, ['wattage' => $gpu['wattage']]) : fetchComponents('Power Supply', $db);
@@ -761,7 +668,7 @@ $progress = calculateProgress();
                                             <i class="fas fa-check-circle text-green-600 text-xl"></i>
                                         </div>
                                     </label>
-                                    <?php 
+                                    <?php
                                         endforeach;
                                     else:
                                     ?>
@@ -770,7 +677,6 @@ $progress = calculateProgress();
                                     </div>
                                     <?php endif; ?>
                                 </div>
-
                                 <!-- Fallback select dropdown for mobile devices -->
                                 <select id="psu-select" name="component_id_mobile" class="wood-input mt-4 md:hidden">
                                     <option value="">-- Select PSU --</option>
@@ -781,9 +687,7 @@ $progress = calculateProgress();
                                     ?>
                                 </select>
                             </div>
-                            
                             <div class="wooden-divider"></div>
-                            
                             <div class="flex justify-between mt-6">
                                 <a href="reset_build.php?component=gpu" class="wooden-cart-button bg-red-700">
                                     <i class="fas fa-arrow-left mr-2"></i>
@@ -807,12 +711,10 @@ $progress = calculateProgress();
                         <div class="p-6 card-content">
                             <div class="mb-6">
                                 <p class="wood-card-text mb-4">The case houses and protects all your PC components. Choose one that fits your motherboard form factor and has good airflow.</p>
-                                
                                 <?php
                                 $motherboardId = $_SESSION['pc_build']['motherboard'];
                                 $motherboard = fetchComponents('motherboard', $db, ['id' => $motherboardId])[0];
                                 ?>
-                                
                                 <div class="flex flex-col md:flex-row gap-4 mb-4">
                                     <div class="wood-card bg-opacity-50 p-4 flex-1">
                                         <h3 class="wood-card-title">Selected Motherboard</h3>
@@ -820,11 +722,9 @@ $progress = calculateProgress();
                                         <p class="text-sm text-amber-700">Form Factor: <?= $motherboard['form_factor'] ?></p>
                                     </div>
                                 </div>
-                                
                                 <label for="case-select" class="wood-label flex items-center">
                                     <i class="fas fa-desktop mr-2 text-amber-800"></i> Choose a Compatible Case:
                                 </label>
-                                
                                 <div class="component-gallery grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                     <?php
                                     $cases = fetchComponents('Case', $db, ['form_factor' => $motherboard['form_factor']]);
@@ -845,7 +745,7 @@ $progress = calculateProgress();
                                             <i class="fas fa-check-circle text-green-600 text-xl"></i>
                                         </div>
                                     </label>
-                                    <?php 
+                                    <?php
                                         endforeach;
                                     else:
                                     ?>
@@ -854,7 +754,6 @@ $progress = calculateProgress();
                                     </div>
                                     <?php endif; ?>
                                 </div>
-
                                 <!-- Fallback select dropdown for mobile devices -->
                                 <select id="case-select" name="component_id_mobile" class="wood-input mt-4 md:hidden">
                                     <option value="">-- Select Case --</option>
@@ -865,9 +764,7 @@ $progress = calculateProgress();
                                     ?>
                                 </select>
                             </div>
-                            
                             <div class="wooden-divider"></div>
-                            
                             <div class="flex justify-between mt-6">
                                 <a href="reset_build.php?component=psu" class="wooden-cart-button bg-red-700">
                                     <i class="fas fa-arrow-left mr-2"></i>
@@ -883,7 +780,6 @@ $progress = calculateProgress();
                     </div>
                 <?php endif; ?>
             </form>
-
             <!-- PC Building Guide (moved to bottom of left column) -->
             <div class="mt-10">
                 <h2 class="page-title text-xl mb-6">PC Building Guide</h2>
@@ -910,11 +806,9 @@ $progress = calculateProgress();
                 </div>
             </div>
         </div>
-
         <!-- Right column - Build Preview -->
         <div class="lg:w-1/3">
             <?php
-            // Always show the build preview, even if no components selected yet
             $selectedComponentsCount = 0;
             foreach ($_SESSION['pc_build'] as $component) {
                 if ($component !== null) {
@@ -942,9 +836,7 @@ $progress = calculateProgress();
                                 <div class="absolute inset-0 bg-gray-900 rounded-lg border-2 border-amber-800 overflow-hidden">
                                     <div class="wooden-texture-overlay opacity-5"></div>
                                 </div>
-                                
-                                <?php 
-                                // CPU - Top Center
+                                <?php
                                 if ($_SESSION['pc_build']['cpu'] !== null) {
                                     $cpuDetails = fetchComponents('CPU', $db, ['id' => $_SESSION['pc_build']['cpu']])[0];
                                 ?>
@@ -955,9 +847,7 @@ $progress = calculateProgress();
                                     </div>
                                 </div>
                                 <?php } ?>
-                                
-                                <?php 
-                                // Motherboard - Center Background
+                                <?php
                                 if ($_SESSION['pc_build']['motherboard'] !== null) {
                                     $motherboardDetails = fetchComponents('Motherboard', $db, ['id' => $_SESSION['pc_build']['motherboard']])[0];
                                 ?>
@@ -967,9 +857,7 @@ $progress = calculateProgress();
                                     </div>
                                 </div>
                                 <?php } ?>
-                                
-                                <?php 
-                                // CPU Cooler - Above CPU
+                                <?php
                                 if ($_SESSION['pc_build']['cpu_cooler'] !== null) {
                                     $coolerDetails = fetchComponents('CPU Cooler', $db, ['id' => $_SESSION['pc_build']['cpu_cooler']])[0];
                                 ?>
@@ -980,9 +868,7 @@ $progress = calculateProgress();
                                     </div>
                                 </div>
                                 <?php } ?>
-                                
-                                <?php 
-                                // RAM - Right Side
+                                <?php
                                 if ($_SESSION['pc_build']['ram'] !== null) {
                                     $ramDetails = fetchComponents('RAM', $db, ['id' => $_SESSION['pc_build']['ram']])[0];
                                 ?>
@@ -993,9 +879,7 @@ $progress = calculateProgress();
                                     </div>
                                 </div>
                                 <?php } ?>
-                                
-                                <?php 
-                                // GPU - Bottom
+                                <?php
                                 if ($_SESSION['pc_build']['gpu'] !== null) {
                                     $gpuDetails = fetchComponents('GPU', $db, ['id' => $_SESSION['pc_build']['gpu']])[0];
                                 ?>
@@ -1006,9 +890,7 @@ $progress = calculateProgress();
                                     </div>
                                 </div>
                                 <?php } ?>
-                                
-                                <?php 
-                                // Storage - Left Side
+                                <?php
                                 if ($_SESSION['pc_build']['storage'] !== null) {
                                     $storageDetails = fetchComponents('Storage', $db, ['id' => $_SESSION['pc_build']['storage']])[0];
                                 ?>
@@ -1019,9 +901,7 @@ $progress = calculateProgress();
                                     </div>
                                 </div>
                                 <?php } ?>
-                                
-                                <?php 
-                                // PSU - Bottom Left
+                                <?php
                                 if ($_SESSION['pc_build']['psu'] !== null) {
                                     $psuDetails = fetchComponents('Power Supply', $db, ['id' => $_SESSION['pc_build']['psu']])[0];
                                 ?>
@@ -1032,9 +912,7 @@ $progress = calculateProgress();
                                     </div>
                                 </div>
                                 <?php } ?>
-                                
-                                <?php 
-                                // Case - Only show name if selected
+                                <?php
                                 if ($_SESSION['pc_build']['case'] !== null) {
                                     $caseDetails = fetchComponents('Case', $db, ['id' => $_SESSION['pc_build']['case']])[0];
                                 ?>
@@ -1043,7 +921,6 @@ $progress = calculateProgress();
                                 </div>
                                 <?php } ?>
                             </div>
-                            
                             <!-- Selected components list -->
                             <div class="mt-4 p-4 bg-amber-50 rounded-lg">
                                 <h4 class="font-bold text-amber-900 mb-3">Selected Components</h4>
@@ -1059,19 +936,14 @@ $progress = calculateProgress();
                                         'psu' => 'Power Supply',
                                         'case' => 'Case'
                                     ];
-                                    
                                     $totalPrice = 0;
-                                    
                                     foreach ($componentTypes as $key => $label) {
                                         if ($_SESSION['pc_build'][$key] !== null) {
                                             $componentId = $_SESSION['pc_build'][$key];
                                             $componentDetails = null;
-                                            
-                                            // Fetch component details
                                             $stmt = $db->prepare("SELECT * FROM products WHERE id = ?");
                                             $stmt->execute([$componentId]);
                                             $componentDetails = $stmt->fetch(PDO::FETCH_ASSOC);
-                                            
                                             if ($componentDetails) {
                                                 $totalPrice += $componentDetails['price'];
                                     ?>
@@ -1086,13 +958,11 @@ $progress = calculateProgress();
                                             }
                                         }
                                     }
-                                    
                                     if ($totalPrice == 0) {
                                         echo '<p class="text-amber-700 text-sm italic">No components selected yet</p>';
                                     }
                                     ?>
                                 </div>
-                                
                                 <?php if ($totalPrice > 0): ?>
                                 <div class="mt-4 pt-3 border-t border-amber-200 flex justify-between items-center">
                                     <span class="text-amber-800 text-sm">Estimated Total:</span>
@@ -1103,7 +973,6 @@ $progress = calculateProgress();
                         <?php endif; ?>
                     </div>
                 </div>
-                
                 <?php if($selectedComponentsCount > 1): ?>
                 <!-- Build Performance Stats -->
                 <div class="wood-card overflow-hidden animated-card">
@@ -1115,7 +984,6 @@ $progress = calculateProgress();
                     <div class="p-4 card-content">
                         <div class="space-y-3">
                             <?php
-                            // Calculate some basic "stats" based on selected components
                             $stats = [
                                 'processing' => 0,
                                 'graphics' => 0,
@@ -1123,32 +991,24 @@ $progress = calculateProgress();
                                 'storage' => 0,
                                 'build_quality' => 0
                             ];
-                            
-                            // Very simple algorithm to generate "stats" based on component prices
                             if ($_SESSION['pc_build']['cpu'] !== null) {
                                 $cpuDetails = fetchComponents('CPU', $db, ['id' => $_SESSION['pc_build']['cpu']])[0];
                                 $stats['processing'] = min(100, ($cpuDetails['price'] / 600) * 100);
                             }
-                            
                             if ($_SESSION['pc_build']['gpu'] !== null) {
                                 $gpuDetails = fetchComponents('GPU', $db, ['id' => $_SESSION['pc_build']['gpu']])[0];
                                 $stats['graphics'] = min(100, ($gpuDetails['price'] / 1600) * 100);
                             }
-                            
                             if ($_SESSION['pc_build']['ram'] !== null) {
                                 $ramDetails = fetchComponents('RAM', $db, ['id' => $_SESSION['pc_build']['ram']])[0];
                                 $stats['memory'] = min(100, ($ramDetails['price'] / 170) * 100);
                             }
-                            
                             if ($_SESSION['pc_build']['storage'] !== null) {
                                 $storageDetails = fetchComponents('Storage', $db, ['id' => $_SESSION['pc_build']['storage']])[0];
                                 $stats['storage'] = min(100, ($storageDetails['price'] / 130) * 100);
                             }
-                            
-                            // Overall build quality based on all component prices
                             $totalPrice = 0;
-                            $maxPrice = 3000; // Hypothetical max price for a top-tier build
-                            
+                            $maxPrice = 3000;
                             foreach ($_SESSION['pc_build'] as $componentType => $componentId) {
                                 if ($componentId !== null) {
                                     $stmt = $db->prepare("SELECT price FROM products WHERE id = ?");
@@ -1157,9 +1017,7 @@ $progress = calculateProgress();
                                     $totalPrice += $price;
                                 }
                             }
-                            
                             $stats['build_quality'] = min(100, ($totalPrice / $maxPrice) * 100);
-                            
                             foreach ($stats as $statName => $statValue) {
                                 $color = 'bg-amber-500';
                                 if ($statValue < 30) {
@@ -1167,7 +1025,6 @@ $progress = calculateProgress();
                                 } else if ($statValue > 70) {
                                     $color = 'bg-green-500';
                                 }
-                                
                                 $displayName = ucwords(str_replace('_', ' ', $statName));
                             ?>
                             <div>
@@ -1181,7 +1038,6 @@ $progress = calculateProgress();
                             </div>
                             <?php } ?>
                         </div>
-                        
                         <?php if ($progress == 100): ?>
                         <div class="mt-4">
                             <button type="submit" class="wooden-cart-button bg-green-700 w-full">
@@ -1197,21 +1053,16 @@ $progress = calculateProgress();
         </div>
     </div>
 </div>
-
 <script>
 $(document).ready(function() {
-    // Add wood texture to cards
     $('.wood-card').each(function() {
         $(this).prepend('<div class="wooden-texture-footer absolute inset-0 z-0 opacity-10"></div>');
     });
-    
-    // Animate component cards
     $('.animated-card').each(function(index) {
         $(this).css({
             'opacity': 0,
             'transform': 'translateY(20px)'
         });
-        
         setTimeout(() => {
             $(this).animate({
                 'opacity': 1,
@@ -1219,8 +1070,6 @@ $(document).ready(function() {
             }, 400, 'easeOutCubic');
         }, 200);
     });
-    
-    // Enhance select dropdowns with wooden styling
     $('.wood-input').each(function() {
         $(this).css({
             'background-color': '#f5e0c0',
@@ -1250,36 +1099,23 @@ $(document).ready(function() {
             });
         }
     );
-    
-    // Handle component card selection
     $('.component-radio').change(function() {
-        // First remove selected class from all cards
         $('.component-card').removeClass('selected').css('border-color', '');
         $('.selected-indicator').css('opacity', '0');
-        
-        // Add selected class to checked card
         if (this.checked) {
             $(this).closest('.component-card')
                 .addClass('selected')
                 .css('border-color', '#5c4033');
-            
             $(this).closest('.component-card').find('.selected-indicator').css('opacity', '1');
-            
-            // Update the hidden select for form submission
             $('#' + $(this).closest('.component-gallery').next('select').attr('id')).val($(this).val());
         }
     });
-    
-    // Handling mobile select changes
     $('select[name^="component_id_mobile"]').change(function() {
         const selectedValue = $(this).val();
         if (selectedValue) {
-            // Find and check the corresponding radio
             $(`input[type="radio"][value="${selectedValue}"]`).prop('checked', true).trigger('change');
         }
     });
-    
-    // Add hover effect to component cards
     $('.component-card').hover(
         function() {
             if (!$(this).hasClass('selected')) {
@@ -1294,7 +1130,6 @@ $(document).ready(function() {
             }
         }
     );
-    
     // Add component image hover zoom effect
     $('.component-image').hover(
         function() {
@@ -1305,7 +1140,6 @@ $(document).ready(function() {
             $(this).css('transform', '');
         }
     );
-    
     // PC Build Preview highlight effects
     $('.component-highlight').hover(
         function() {
@@ -1315,8 +1149,6 @@ $(document).ready(function() {
                 'border-width': '2px',
                 'box-shadow': '0 0 15px rgba(245, 158, 11, 0.5)'
             });
-            
-            // Highlight corresponding component in the selected components list
             $(`.selected-component[data-component="${component}"]`).addClass('bg-amber-100');
         },
         function() {
@@ -1326,13 +1158,11 @@ $(document).ready(function() {
                 'border-width': '',
                 'box-shadow': ''
             });
-            
             // Remove highlight from corresponding component
             $(`.selected-component[data-component="${component}"]`).removeClass('bg-amber-100');
         }
     );
 });
 </script>
-
 <?php require_once 'includes/footer.php'; ?>
-<?php ob_end_flush(); // End output buffering ?>
+<?php ob_end_flush(); ?>

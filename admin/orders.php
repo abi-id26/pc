@@ -1,30 +1,22 @@
 <?php
 require_once 'includes/auth.php';
 require_once '../includes/db.php';
-
-// Start the session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
 requireAdmin();
-
-// Fetch all orders with user information
 $stmt = $pdo->prepare("
-    SELECT o.*, u.username, u.email 
+    SELECT o.*, u.username, u.email
     FROM orders o
     JOIN users u ON o.user_id = u.id
     ORDER BY o.created_at DESC
 ");
 $stmt->execute();
 $orders = $stmt->fetchAll();
-
-// Get status counts for statistics
 $pendingCount = 0;
 $completedCount = 0;
 $cancelledCount = 0;
 $totalRevenue = 0;
-
 foreach ($orders as $order) {
     if ($order['status'] == 'pending') $pendingCount++;
     else if ($order['status'] == 'completed') {
@@ -34,7 +26,6 @@ foreach ($orders as $order) {
     else if ($order['status'] == 'cancelled') $cancelledCount++;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,7 +60,7 @@ foreach ($orders as $order) {
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-amber-200">
-                        <i class="fas fa-user-shield mr-1"></i> 
+                        <i class="fas fa-user-shield mr-1"></i>
                         <?= htmlspecialchars($_SESSION['username']) ?>
                     </span>
                     <a href="../logout.php" class="nav-link text-amber-200 hover:text-white transition-colors">
@@ -79,10 +70,8 @@ foreach ($orders as $order) {
             </div>
         </div>
     </header>
-
     <div class="flex flex-col md:flex-row min-h-screen bg-amber-50 flex-grow">
         <?php require_once 'includes/sidebar.php'; ?>
-        
         <main class="flex-1 p-6">
             <div class="wood-breadcrumbs mb-6">
                 <div class="wood-breadcrumb-item">
@@ -95,7 +84,6 @@ foreach ($orders as $order) {
                     Orders
                 </div>
             </div>
-            
             <!-- Order Statistics -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
@@ -111,7 +99,6 @@ foreach ($orders as $order) {
                         <p class="text-3xl font-bold text-amber-800"><?= count($orders) ?></p>
                     </div>
                 </div>
-                
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
                     <div class="wooden-texture-overlay"></div>
                     <div class="absolute top-0 left-0 w-full h-1 bg-amber-600"></div>
@@ -125,7 +112,6 @@ foreach ($orders as $order) {
                         <p class="text-3xl font-bold text-amber-600"><?= $pendingCount ?></p>
                     </div>
                 </div>
-                
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
                     <div class="wooden-texture-overlay"></div>
                     <div class="absolute top-0 left-0 w-full h-1 bg-green-600"></div>
@@ -139,7 +125,6 @@ foreach ($orders as $order) {
                         <p class="text-3xl font-bold text-green-600"><?= $completedCount ?></p>
                     </div>
                 </div>
-                
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
                     <div class="wooden-texture-overlay"></div>
                     <div class="absolute top-0 left-0 w-full h-1 bg-green-600"></div>
@@ -154,7 +139,6 @@ foreach ($orders as $order) {
                     </div>
                 </div>
             </div>
-            
             <div class="flex justify-between items-center mb-6">
                 <h1 class="page-title text-2xl">Order Management</h1>
                 <div class="flex space-x-2">
@@ -169,7 +153,6 @@ foreach ($orders as $order) {
                     </a>
                 </div>
             </div>
-            
             <div class="wood-card overflow-hidden rounded-lg shadow-md mb-8">
                 <div class="wooden-texture-overlay"></div>
                 <div class="p-6 relative z-10">
@@ -187,20 +170,18 @@ foreach ($orders as $order) {
                             </thead>
                             <tbody>
                                 <?php if (count($orders) > 0): ?>
-                                    <?php 
-                                    // Filter orders by status if requested
+                                    <?php
                                     $filteredOrders = $orders;
                                     if (isset($_GET['status']) && $_GET['status']) {
                                         $filteredOrders = array_filter($orders, function($order) {
                                             return $order['status'] == $_GET['status'];
                                         });
                                     }
-                                    
                                     if (count($filteredOrders) > 0):
-                                        foreach ($filteredOrders as $order): 
+                                        foreach ($filteredOrders as $order):
                                     ?>
                                     <tr>
-                                        <td class="font-medium">#<?= $order['id'] ?></td>
+                                        <td class="font-medium">?></td>
                                         <td>
                                             <div class="font-medium text-amber-900"><?= htmlspecialchars($order['username']) ?></div>
                                             <div class="text-sm text-amber-700"><?= htmlspecialchars($order['email']) ?></div>
@@ -208,8 +189,8 @@ foreach ($orders as $order) {
                                         <td><?= date('M j, Y H:i', strtotime($order['created_at'])) ?></td>
                                         <td class="text-right font-bold text-amber-900">$<?= number_format($order['total'], 2) ?></td>
                                         <td class="text-center">
-                                            <span class="wood-badge inline-block px-2 py-1 rounded text-white text-xs <?= 
-                                                ($order['status'] == 'completed') ? 'bg-green-600' : 
+                                            <span class="wood-badge inline-block px-2 py-1 rounded text-white text-xs <?=
+                                                ($order['status'] == 'completed') ? 'bg-green-600' :
                                                 (($order['status'] == 'cancelled') ? 'bg-red-600' : 'bg-amber-600')
                                             ?>">
                                                 <?= ucfirst($order['status']) ?>
@@ -224,12 +205,12 @@ foreach ($orders as $order) {
                                                     <i class="fas fa-print mr-1 text-black"></i> Print
                                                 </a>
                                                 <?php if ($order['status'] == 'pending'): ?>
-                                                    <a href="update_order.php?id=<?= $order['id'] ?>&status=completed" 
+                                                    <a href="update_order.php?id=<?= $order['id'] ?>&status=completed"
                                                        class="wooden-cart-button inline-flex items-center px-3 py-1 bg-green-600 text-white"
                                                        onclick="return confirm('Mark this order as completed?')">
                                                         <i class="fas fa-check mr-1 text-black"></i> Complete
                                                     </a>
-                                                    <a href="update_order.php?id=<?= $order['id'] ?>&status=cancelled" 
+                                                    <a href="update_order.php?id=<?= $order['id'] ?>&status=cancelled"
                                                        class="wooden-cart-button inline-flex items-center px-3 py-1 bg-red-600 text-white"
                                                        onclick="return confirm('Are you sure you want to cancel this order?')">
                                                         <i class="fas fa-times mr-1 text-black"></i> Cancel
@@ -254,7 +235,6 @@ foreach ($orders as $order) {
                     </div>
                 </div>
             </div>
-            
             <!-- Order Processing Guide -->
             <div class="wood-card overflow-hidden rounded-lg shadow-md">
                 <div class="wooden-texture-overlay"></div>
@@ -276,7 +256,6 @@ foreach ($orders as $order) {
                                 New orders are automatically marked as Pending. These orders need to be packed, shipped, and marked as completed.
                             </p>
                         </div>
-                        
                         <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
                             <div class="flex items-center mb-2">
                                 <span class="bg-green-600 p-2 rounded-full text-white mr-3">
@@ -288,7 +267,6 @@ foreach ($orders as $order) {
                                 Mark orders as completed once they've been shipped. This will notify the customer that their order is on the way.
                             </p>
                         </div>
-                        
                         <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
                             <div class="flex items-center mb-2">
                                 <span class="bg-red-600 p-2 rounded-full text-white mr-3">
@@ -305,7 +283,6 @@ foreach ($orders as $order) {
             </div>
         </main>
     </div>
-
     <!-- Admin Footer -->
     <footer class="wooden-footer mt-auto relative overflow-hidden">
         <div class="wooden-texture-footer absolute inset-0 z-0"></div>
@@ -325,20 +302,14 @@ foreach ($orders as $order) {
             </div>
         </div>
     </footer>
-
     <script>
     $(document).ready(function() {
-        // Add wood texture to cards
         $('.wood-card').each(function() {
             if (!$(this).find('.wooden-texture-footer').length) {
                 $(this).prepend('<div class="wooden-texture-footer absolute inset-0 z-0 opacity-10"></div>');
             }
         });
-        
-        // Animate the dashboard cards
         $('.wood-card').addClass('fade-in');
-        
-        // Add hover effects to buttons
         $('.wooden-cart-button').hover(
             function() {
                 $(this).find('i').animate({ marginRight: '8px' }, 200);

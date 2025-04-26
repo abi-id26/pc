@@ -1,5 +1,5 @@
-    <!-- Footer -->
-    <footer class="wooden-footer relative mt-auto">
+<!-- Footer -->
+<footer class="wooden-footer relative mt-auto">
         <div class="wooden-texture-footer absolute inset-0 z-0"></div>
         <div class="container mx-auto px-4 relative z-10">
             <div class="footer-top pt-12 pb-6">
@@ -53,9 +53,7 @@
                     </div>
                 </div>
             </div>
-            
             <div class="wooden-divider"></div>
-            
             <div class="footer-bottom py-6">
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="copyright mb-4 md:mb-0">
@@ -74,21 +72,16 @@
             </div>
         </div>
     </footer>
-
     <!-- Custom JS -->
     <script src="assets/js/script.js"></script>
-    
     <script>
         $(document).ready(function() {
-            // Initialize footer textures and effects
             $('.wooden-texture-footer').each(function() {
                 $(this).css({
                     'background-image': 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z\' fill=\'%235c4033\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
                     'background-color': '#5c4033'
                 });
             });
-            
-            // Footer link hover effects
             $('.footer-link').hover(
                 function() {
                     $(this).find('i').addClass('fa-bounce');
@@ -99,8 +92,6 @@
                     $(this).css('padding-left', '0');
                 }
             );
-            
-            // Social icon hover effects
             $('.social-icon').hover(
                 function() {
                     $(this).find('i').addClass('fa-beat');
@@ -109,8 +100,6 @@
                     $(this).find('i').removeClass('fa-beat');
                 }
             );
-            
-            // Payment icon hover effects
             $('.payment-icon').hover(
                 function() {
                     $(this).addClass('payment-icon-hover');

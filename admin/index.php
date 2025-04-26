@@ -2,22 +2,14 @@
 require_once 'includes/auth.php'; require_once '../includes/db.php';
 if (session_status() == PHP_SESSION_NONE) {session_start();}
 requireAdmin();
-
-// Get summary statistics
 $totalProducts = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
 $totalOrders = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
 $totalUsers = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $pendingOrders = $pdo->query("SELECT COUNT(*) FROM orders WHERE status = 'pending'")->fetchColumn();
 $completedOrders = $pdo->query("SELECT COUNT(*) FROM orders WHERE status = 'completed'")->fetchColumn();
 $cancelledOrders = $pdo->query("SELECT COUNT(*) FROM orders WHERE status = 'cancelled'")->fetchColumn();
-
-// Calculate total revenue
 $totalRevenue = $pdo->query("SELECT SUM(total) FROM orders WHERE status != 'cancelled'")->fetchColumn() ?: 0;
-
-// Get low stock items
 $lowStockItems = $pdo->query("SELECT id, name, stock FROM products WHERE stock <= 5 ORDER BY stock ASC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
-
-// Get recent orders
 $recentOrders = $pdo->query("
     SELECT o.id, o.created_at, o.status, o.total, u.username, u.email
     FROM orders o
@@ -25,17 +17,14 @@ $recentOrders = $pdo->query("
     ORDER BY o.created_at DESC
     LIMIT 5
 ")->fetchAll(PDO::FETCH_ASSOC);
-
-// Get monthly sales data for chart (last 6 months)
 $monthlySales = [];
 $months = [];
 for ($i = 5; $i >= 0; $i--) {
     $month = date('Y-m', strtotime("-$i months"));
     $months[] = date('M', strtotime("-$i months"));
-    
     $stmt = $pdo->prepare("
-        SELECT SUM(total) FROM orders 
-        WHERE status != 'cancelled' 
+        SELECT SUM(total) FROM orders
+        WHERE status != 'cancelled'
         AND DATE_FORMAT(created_at, '%Y-%m') = ?
     ");
     $stmt->execute([$month]);
@@ -78,7 +67,7 @@ for ($i = 5; $i >= 0; $i--) {
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-amber-200">
-                        <i class="fas fa-user-shield mr-1"></i> 
+                        <i class="fas fa-user-shield mr-1"></i>
                         <?= htmlspecialchars($_SESSION['username']) ?>
                     </span>
                     <a href="../logout.php" class="nav-link text-amber-200 hover:text-white transition-colors">
@@ -90,7 +79,6 @@ for ($i = 5; $i >= 0; $i--) {
     </header>
     <div class="flex flex-col md:flex-row min-h-screen bg-amber-50 flex-grow">
         <?php require_once 'includes/sidebar.php'; ?>
-        
         <main class="flex-1 p-6">
             <div class="wood-breadcrumbs mb-6">
                 <div class="wood-breadcrumb-item">
@@ -103,7 +91,6 @@ for ($i = 5; $i >= 0; $i--) {
                     Dashboard
                 </div>
             </div>
-            
             <div class="flex flex-col md:flex-row justify-between items-center mb-6">
                 <h1 class="page-title text-2xl font-bold mb-2 md:mb-0">Admin Dashboard</h1>
                 <div class="flex space-x-2">
@@ -112,7 +99,6 @@ for ($i = 5; $i >= 0; $i--) {
                     </a>
                 </div>
             </div>
-            
             <!-- Key Statistics Row 1-->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <!-- Total Revenue -->
@@ -130,7 +116,6 @@ for ($i = 5; $i >= 0; $i--) {
                         <p class="text-sm text-amber-700 mt-1">From active orders</p>
                     </div>
                 </div>
-                
                 <!-- Total Orders -->
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
                     <div class="wooden-texture-overlay"></div>
@@ -150,7 +135,6 @@ for ($i = 5; $i >= 0; $i--) {
                         </div>
                     </div>
                 </div>
-                
                 <!-- Total Products -->
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
                     <div class="wooden-texture-overlay"></div>
@@ -171,7 +155,6 @@ for ($i = 5; $i >= 0; $i--) {
                         </div>
                     </div>
                 </div>
-                
                 <!-- Total Users -->
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
                     <div class="wooden-texture-overlay"></div>
@@ -193,7 +176,6 @@ for ($i = 5; $i >= 0; $i--) {
                     </div>
                 </div>
             </div>
-            
             <!-- Sales Chart & Low Stock -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <!-- Sales Chart -->
@@ -208,7 +190,6 @@ for ($i = 5; $i >= 0; $i--) {
                         <canvas id="salesChart"></canvas>
                     </div>
                 </div>
-                
                 <!-- Low Stock Alerts -->
                 <div class="wood-card overflow-hidden rounded-lg shadow-md">
                     <div class="wooden-texture-overlay"></div>
@@ -243,7 +224,6 @@ for ($i = 5; $i >= 0; $i--) {
                     </div>
                 </div>
             </div>
-            
             <!-- Recent Orders Section -->
             <div class="wood-card overflow-hidden rounded-lg shadow-md mb-6">
                 <div class="wooden-texture-overlay"></div>
@@ -269,15 +249,15 @@ for ($i = 5; $i >= 0; $i--) {
                                 <?php if (count($recentOrders) > 0): ?>
                                     <?php foreach ($recentOrders as $order): ?>
                                     <tr>
-                                        <td class="font-medium">#<?= $order['id'] ?></td>
+                                        <td class="font-medium">?></td>
                                         <td>
                                             <div class="font-medium text-amber-900"><?= htmlspecialchars($order['username']) ?></div>
                                             <div class="text-xs text-amber-700"><?= htmlspecialchars($order['email']) ?></div>
                                         </td>
                                         <td><?= date('M j, Y H:i', strtotime($order['created_at'])) ?></td>
                                         <td>
-                                            <span class="wood-badge inline-block px-2 py-1 rounded text-white text-xs <?= 
-                                                ($order['status'] == 'completed') ? 'bg-green-600' : 
+                                            <span class="wood-badge inline-block px-2 py-1 rounded text-white text-xs <?=
+                                                ($order['status'] == 'completed') ? 'bg-green-600' :
                                                 (($order['status'] == 'cancelled') ? 'bg-red-600' : 'bg-amber-600')
                                             ?>">
                                                 <?= ucfirst($order['status']) ?>
@@ -290,7 +270,7 @@ for ($i = 5; $i >= 0; $i--) {
                                                     <i class="fas fa-eye mr-1"></i> View
                                                 </a>
                                                 <?php if ($order['status'] == 'pending'): ?>
-                                                <a href="update_order.php?id=<?= $order['id'] ?>&status=completed" 
+                                                <a href="update_order.php?id=<?= $order['id'] ?>&status=completed"
                                                    class="wooden-cart-button inline-flex items-center px-3 py-1 bg-green-600 text-white text-sm">
                                                     <i class="fas fa-check mr-1"></i> Complete
                                                 </a>
@@ -315,7 +295,6 @@ for ($i = 5; $i >= 0; $i--) {
                     </div>
                 </div>
             </div>
-
             <!-- Quick Actions Section -->
             <div class="wood-card overflow-hidden rounded-lg shadow-md">
                 <div class="wooden-texture-overlay"></div>
@@ -343,7 +322,6 @@ for ($i = 5; $i >= 0; $i--) {
             </div>
         </main>
     </div>
-
     <!-- Admin Footer -->
     <footer class="wooden-footer mt-auto relative overflow-hidden">
         <div class="wooden-texture-footer absolute inset-0 z-0"></div>
@@ -363,20 +341,14 @@ for ($i = 5; $i >= 0; $i--) {
             </div>
         </div>
     </footer>
-
     <script>
     $(document).ready(function() {
-        // Add wood texture to cards for consistency with main site
         $('.wood-card').each(function() {
             if (!$(this).find('.wooden-texture-footer').length) {
                 $(this).prepend('<div class="wooden-texture-footer absolute inset-0 z-0 opacity-10"></div>');
             }
         });
-        
-        // Animate the dashboard cards for a more engaging experience
         $('.wood-card').addClass('fade-in');
-        
-        // Add hover effects to buttons consistent with main site
         $('.wooden-cart-button').hover(
             function() {
                 $(this).find('i').animate({ marginRight: '8px' }, 200);
@@ -385,8 +357,6 @@ for ($i = 5; $i >= 0; $i--) {
                 $(this).find('i').animate({ marginRight: '0.5rem' }, 200);
             }
         );
-        
-        // Sales Chart
         const ctx = document.getElementById('salesChart').getContext('2d');
         const salesChart = new Chart(ctx, {
             type: 'bar',

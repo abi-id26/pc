@@ -1,24 +1,18 @@
 <?php
 require_once 'includes/db.php';
-
-// Process login form before including header
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
-    
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?"); 
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
     $stmt->execute([$username]);
     $user = $stmt->fetch();
-
     if ($user && password_verify($password, $user['password'])) {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
-        $_SESSION['role'] = $user['role']; // Store user role in session
-        
-        // Redirect based on role
+        $_SESSION['role'] = $user['role'];
         if ($user['role'] === 'admin') {
             header("Location: admin/index.php");
         } else {
@@ -29,11 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Invalid username or password";
     }
 }
-
-// Include header after processing form and potential redirects
 require_once 'includes/header.php';
 ?>
-
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumbs -->
     <div class="wood-breadcrumbs mb-6">
@@ -44,7 +35,6 @@ require_once 'includes/header.php';
             Login
         </div>
     </div>
-
     <div class="max-w-md mx-auto">
         <div class="wood-card overflow-hidden fade-in">
             <div class="bg-amber-800 py-4 px-6 border-b border-amber-700">
@@ -56,7 +46,6 @@ require_once 'includes/header.php';
                         <p><i class="fas fa-exclamation-circle mr-2"></i> <?= $error ?></p>
                     </div>
                 <?php endif; ?>
-                
                 <form method="post">
                     <div class="wood-input-group mb-6">
                         <label for="username" class="wood-label flex items-center">
@@ -77,7 +66,6 @@ require_once 'includes/header.php';
                         </button>
                     </div>
                 </form>
-                
                 <div class="text-center">
                     <div class="wooden-divider mb-4"></div>
                     <p class="text-amber-900">Don't have an account? <a href="register.php" class="text-amber-700 font-bold hover:underline">Register here</a></p>
@@ -86,22 +74,16 @@ require_once 'includes/header.php';
         </div>
     </div>
 </div>
-
 <script>
 $(document).ready(function() {
-    // Add wood texture to cards
     $('.wood-card').each(function() {
         $(this).prepend('<div class="wooden-texture-footer absolute inset-0 z-0 opacity-10"></div>');
     });
-    
-    // Focus effect for inputs
     $('.wood-input').focus(function() {
         $(this).parents('.wood-input-group').addClass('focused');
     }).blur(function() {
         $(this).parents('.wood-input-group').removeClass('focused');
     });
-    
-    // Animate login button on hover
     $('.wooden-cart-button').hover(
         function() {
             $(this).find('i').addClass('fa-bounce');
@@ -112,5 +94,4 @@ $(document).ready(function() {
     );
 });
 </script>
-
 <?php require_once 'includes/footer.php'; ?>

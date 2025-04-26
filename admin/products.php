@@ -1,15 +1,10 @@
 <?php
 require_once 'includes/auth.php';
 require_once '../includes/db.php';
-
-// Start the session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
 requireAdmin();
-
-// Handle product deletion
 if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
     $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
@@ -17,12 +12,9 @@ if (isset($_GET['delete'])) {
     header("Location: products.php");
     exit();
 }
-
-// Fetch all products
 $stmt = $pdo->query("SELECT * FROM products");
 $products = $stmt->fetchAll();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,7 +49,7 @@ $products = $stmt->fetchAll();
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-amber-200">
-                        <i class="fas fa-user-shield mr-1"></i> 
+                        <i class="fas fa-user-shield mr-1"></i>
                         <?= htmlspecialchars($_SESSION['username']) ?>
                     </span>
                     <a href="../logout.php" class="nav-link text-amber-200 hover:text-white transition-colors">
@@ -67,10 +59,8 @@ $products = $stmt->fetchAll();
             </div>
         </div>
     </header>
-
     <div class="flex flex-col md:flex-row min-h-screen bg-amber-50 flex-grow">
         <?php require_once 'includes/sidebar.php'; ?>
-        
         <main class="flex-1 p-6">
             <div class="wood-breadcrumbs mb-6">
                 <div class="wood-breadcrumb-item">
@@ -83,7 +73,6 @@ $products = $stmt->fetchAll();
                     Products
                 </div>
             </div>
-            
             <div class="flex justify-between items-center mb-6">
                 <h1 class="page-title text-2xl">Products Management</h1>
                 <a href="add_product.php" class="wooden-cart-button inline-flex items-center px-4 py-2 bg-amber-800">
@@ -91,7 +80,6 @@ $products = $stmt->fetchAll();
                     <span>Add Product</span>
                 </a>
             </div>
-            
             <div class="wood-card overflow-hidden rounded-lg shadow-md mb-8">
                 <div class="wooden-texture-overlay"></div>
                 <div class="p-6 relative z-10">
@@ -120,8 +108,8 @@ $products = $stmt->fetchAll();
                                         <td><?= htmlspecialchars($product['category']) ?></td>
                                         <td class="text-right font-bold text-amber-900">$<?= number_format($product['price'], 2) ?></td>
                                         <td class="text-center">
-                                            <span class="wood-badge inline-block px-2 py-1 rounded text-white text-xs <?= 
-                                                ($product['stock'] > 10) ? 'bg-green-600' : 
+                                            <span class="wood-badge inline-block px-2 py-1 rounded text-white text-xs <?=
+                                                ($product['stock'] > 10) ? 'bg-green-600' :
                                                 (($product['stock'] > 0) ? 'bg-amber-600' : 'bg-red-600')
                                             ?>">
                                                 <?= $product['stock'] ?>
@@ -149,7 +137,6 @@ $products = $stmt->fetchAll();
                     </div>
                 </div>
             </div>
-            
             <!-- Product Categories -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="wood-card overflow-hidden rounded-lg shadow-md">
@@ -200,7 +187,6 @@ $products = $stmt->fetchAll();
                         </div>
                     </div>
                 </div>
-                
                 <!-- Quick Stats -->
                 <div class="wood-card overflow-hidden rounded-lg shadow-md">
                     <div class="wooden-texture-overlay"></div>
@@ -211,19 +197,15 @@ $products = $stmt->fetchAll();
                     </div>
                     <div class="p-6 relative z-10">
                         <?php
-                        // Get inventory stats
                         $totalProducts = count($products);
                         $totalValue = 0;
                         $lowStockItems = 0;
-                        
                         foreach ($products as $product) {
                             $totalValue += $product['price'] * $product['stock'];
                             if ($product['stock'] <= 5) {
                                 $lowStockItems++;
                             }
                         }
-                        
-                        // Get categories count
                         $cats = [];
                         foreach ($products as $product) {
                             if (!isset($cats[$product['category']])) {
@@ -256,7 +238,6 @@ $products = $stmt->fetchAll();
             </div>
         </main>
     </div>
-
     <!-- Admin Footer -->
     <footer class="wooden-footer mt-auto relative overflow-hidden">
         <div class="wooden-texture-footer absolute inset-0 z-0"></div>
@@ -276,20 +257,14 @@ $products = $stmt->fetchAll();
             </div>
         </div>
     </footer>
-
     <script>
     $(document).ready(function() {
-        // Add wood texture to cards
         $('.wood-card').each(function() {
             if (!$(this).find('.wooden-texture-footer').length) {
                 $(this).prepend('<div class="wooden-texture-footer absolute inset-0 z-0 opacity-10"></div>');
             }
         });
-        
-        // Animate the dashboard cards
         $('.wood-card').addClass('fade-in');
-        
-        // Add hover effects to buttons
         $('.wooden-cart-button').hover(
             function() {
                 $(this).find('i').animate({ marginRight: '8px' }, 200);

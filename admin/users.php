@@ -1,43 +1,32 @@
 <?php
 require_once 'includes/auth.php';
 require_once '../includes/db.php';
-
-// Start the session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
 requireAdmin();
-
-// Fetch all users
 $stmt = $pdo->prepare("
     SELECT * FROM users
     ORDER BY created_at DESC
 ");
 $stmt->execute();
 $users = $stmt->fetchAll();
-
-// Get user statistics
 $totalUsers = count($users);
 $adminCount = 0;
 $customerCount = 0;
-$recentUsers = 0; // Users who joined in the last 30 days
-
+$recentUsers = 0;
 $thirtyDaysAgo = date('Y-m-d H:i:s', strtotime('-30 days'));
-
 foreach ($users as $user) {
     if ($user['role'] == 'admin') {
         $adminCount++;
     } else {
         $customerCount++;
     }
-    
     if (strtotime($user['created_at']) > strtotime($thirtyDaysAgo)) {
         $recentUsers++;
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,7 +61,7 @@ foreach ($users as $user) {
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-amber-200">
-                        <i class="fas fa-user-shield mr-1"></i> 
+                        <i class="fas fa-user-shield mr-1"></i>
                         <?= htmlspecialchars($_SESSION['username']) ?>
                     </span>
                     <a href="../logout.php" class="nav-link text-amber-200 hover:text-white transition-colors">
@@ -82,10 +71,8 @@ foreach ($users as $user) {
             </div>
         </div>
     </header>
-
     <div class="flex flex-col md:flex-row min-h-screen bg-amber-50 flex-grow">
         <?php require_once 'includes/sidebar.php'; ?>
-        
         <main class="flex-1 p-6">
             <div class="wood-breadcrumbs mb-6">
                 <div class="wood-breadcrumb-item">
@@ -98,7 +85,6 @@ foreach ($users as $user) {
                     Users
                 </div>
             </div>
-            
             <!-- User Statistics -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
@@ -114,7 +100,6 @@ foreach ($users as $user) {
                         <p class="text-3xl font-bold text-amber-800"><?= $totalUsers ?></p>
                     </div>
                 </div>
-                
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
                     <div class="wooden-texture-overlay"></div>
                     <div class="absolute top-0 left-0 w-full h-1 bg-amber-600"></div>
@@ -128,7 +113,6 @@ foreach ($users as $user) {
                         <p class="text-3xl font-bold text-amber-600"><?= $customerCount ?></p>
                     </div>
                 </div>
-                
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
                     <div class="wooden-texture-overlay"></div>
                     <div class="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
@@ -142,7 +126,6 @@ foreach ($users as $user) {
                         <p class="text-3xl font-bold text-blue-600"><?= $adminCount ?></p>
                     </div>
                 </div>
-                
                 <div class="wood-card overflow-hidden rounded-lg shadow-md relative">
                     <div class="wooden-texture-overlay"></div>
                     <div class="absolute top-0 left-0 w-full h-1 bg-green-600"></div>
@@ -157,7 +140,6 @@ foreach ($users as $user) {
                     </div>
                 </div>
             </div>
-            
             <div class="flex justify-between items-center mb-6">
                 <h1 class="page-title text-2xl">User Management</h1>
                 <div class="flex space-x-2">
@@ -175,7 +157,6 @@ foreach ($users as $user) {
                     </a>
                 </div>
             </div>
-            
             <div class="wood-card overflow-hidden rounded-lg shadow-md mb-8">
                 <div class="wooden-texture-overlay"></div>
                 <div class="p-6 relative z-10">
@@ -194,8 +175,7 @@ foreach ($users as $user) {
                             </thead>
                             <tbody>
                                 <?php if (count($users) > 0): ?>
-                                    <?php 
-                                    // Filter users by type if requested
+                                    <?php
                                     $filteredUsers = $users;
                                     if (isset($_GET['type']) && $_GET['type']) {
                                         $roleType = ($_GET['type'] == 'admin') ? 'admin' : 'user';
@@ -203,24 +183,22 @@ foreach ($users as $user) {
                                             return $user['role'] == $roleType;
                                         });
                                     }
-                                    
                                     if (count($filteredUsers) > 0):
-                                        foreach ($filteredUsers as $user): 
-                                            // Fetch order count for this user
+                                        foreach ($filteredUsers as $user):
                                             $stmt = $pdo->prepare("SELECT COUNT(*) as order_count FROM orders WHERE user_id = ?");
                                             $stmt->execute([$user['id']]);
                                             $orderData = $stmt->fetch();
                                             $orderCount = $orderData ? $orderData['order_count'] : 0;
                                     ?>
                                     <tr>
-                                        <td class="font-medium">#<?= $user['id'] ?></td>
+                                        <td class="font-medium">?></td>
                                         <td>
                                             <div class="font-medium text-amber-900"><?= htmlspecialchars($user['username']) ?></div>
                                         </td>
                                         <td><?= htmlspecialchars($user['email']) ?></td>
                                         <td><?= date('M j, Y', strtotime($user['created_at'])) ?></td>
                                         <td class="text-center">
-                                            <span class="wood-badge inline-block px-2 py-1 rounded text-white text-xs <?= 
+                                            <span class="wood-badge inline-block px-2 py-1 rounded text-white text-xs <?=
                                                 ($user['role'] == 'admin') ? 'bg-blue-600' : 'bg-amber-600'
                                             ?>">
                                                 <?= ucfirst($user['role']) ?>
@@ -241,13 +219,13 @@ foreach ($users as $user) {
                                                     <i class="fas fa-edit mr-1 text-black"></i> Edit
                                                 </a>
                                                 <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                                    <a href="toggle_admin.php?id=<?= $user['id'] ?>" 
+                                                    <a href="toggle_admin.php?id=<?= $user['id'] ?>"
                                                        class="wooden-cart-button inline-flex items-center px-3 py-1 <?= ($user['role'] == 'admin') ? 'bg-yellow-600' : 'bg-blue-600' ?> text-black"
                                                        onclick="return confirm('<?= ($user['role'] == 'admin') ? 'Remove admin privileges?' : 'Grant admin privileges?' ?>')">
-                                                        <i class="fas <?= ($user['role'] == 'admin') ? 'fa-user' : 'fa-user-shield' ?> mr-1 text-black"></i> 
+                                                        <i class="fas <?= ($user['role'] == 'admin') ? 'fa-user' : 'fa-user-shield' ?> mr-1 text-black"></i>
                                                         <?= ($user['role'] == 'admin') ? 'Make Customer' : 'Make Admin' ?>
                                                     </a>
-                                                    <a href="delete_user.php?id=<?= $user['id'] ?>" 
+                                                    <a href="delete_user.php?id=<?= $user['id'] ?>"
                                                        class="wooden-cart-button inline-flex items-center px-3 py-1 bg-red-600 text-black"
                                                        onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
                                                         <i class="fas fa-trash mr-1 text-black"></i> Delete
@@ -272,7 +250,6 @@ foreach ($users as $user) {
                     </div>
                 </div>
             </div>
-            
             <!-- User Management Guide -->
             <div class="wood-card overflow-hidden rounded-lg shadow-md">
                 <div class="wooden-texture-overlay"></div>
@@ -294,7 +271,6 @@ foreach ($users as $user) {
                                 Regular users who can browse products, place orders, and manage their own account information.
                             </p>
                         </div>
-                        
                         <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
                             <div class="flex items-center mb-2">
                                 <span class="bg-blue-600 p-2 rounded-full text-white mr-3">
@@ -306,7 +282,6 @@ foreach ($users as $user) {
                                 Admins can manage products, process orders, and have access to the admin panel. Be careful when assigning admin privileges.
                             </p>
                         </div>
-                        
                         <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
                             <div class="flex items-center mb-2">
                                 <span class="bg-red-600 p-2 rounded-full text-white mr-3">
@@ -323,7 +298,6 @@ foreach ($users as $user) {
             </div>
         </main>
     </div>
-
     <!-- Admin Footer -->
     <footer class="wooden-footer mt-auto relative overflow-hidden">
         <div class="wooden-texture-footer absolute inset-0 z-0"></div>
@@ -343,20 +317,14 @@ foreach ($users as $user) {
             </div>
         </div>
     </footer>
-
     <script>
     $(document).ready(function() {
-        // Add wood texture to cards
         $('.wood-card').each(function() {
             if (!$(this).find('.wooden-texture-footer').length) {
                 $(this).prepend('<div class="wooden-texture-footer absolute inset-0 z-0 opacity-10"></div>');
             }
         });
-        
-        // Animate the dashboard cards
         $('.wood-card').addClass('fade-in');
-        
-        // Add hover effects to buttons
         $('.wooden-cart-button').hover(
             function() {
                 $(this).find('i').animate({ marginRight: '8px' }, 200);
@@ -368,4 +336,4 @@ foreach ($users as $user) {
     });
     </script>
 </body>
-</html> 
+</html>

@@ -1,44 +1,30 @@
 <?php
 require_once 'includes/db.php';
-
-// Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
     $errors = [];
-    
-    // Validate username
     if (empty($username)) {
         $errors[] = "Username is required";
     } elseif (strlen($username) < 3 || strlen($username) > 30) {
         $errors[] = "Username must be between 3 and 30 characters";
     }
-    
-    // Validate email
     if (empty($email)) {
         $errors[] = "Email is required";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Please enter a valid email address";
     }
-    
-    // Validate password if provided
     if (!empty($password) && strlen($password) < 6) {
         $errors[] = "Password must be at least 6 characters";
     }
-    
-    // Check if username or email is already taken by another user
     if (empty($errors)) {
         $check_stmt = $pdo->prepare("SELECT id FROM users WHERE (username = ? OR email = ?) AND id != ?");
         $check_stmt->execute([$username, $email, $_SESSION['user_id']]);
@@ -46,46 +32,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Username or email is already taken";
         }
     }
-    
-    // If no errors, proceed with update
     if (empty($errors)) {
-        // Start with basic update for username and email
         $sql = "UPDATE users SET username = ?, email = ?";
         $params = [$username, $email];
-        
-        // If password is provided, update it too
         if (!empty($password)) {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             $sql .= ", password = ?";
             $params[] = $hashed_password;
         }
-        
-        // Add WHERE clause and user ID
         $sql .= " WHERE id = ?";
         $params[] = $_SESSION['user_id'];
-        
-        // Execute the update query
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        
-        // Update session with new username if changed
         $_SESSION['username'] = $username;
-        
         $_SESSION['success'] = "Account updated successfully!";
         header("Location: my_account.php");
         exit();
     }
 }
-
-// Include header after all redirects
 require_once 'includes/header.php';
-
-// Get user data
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
-
 <div class="container mx-auto px-4 py-8">
     <div class="wood-breadcrumbs mb-6">
         <div class="wood-breadcrumb-item">
@@ -98,7 +67,6 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
             Edit Account
         </div>
     </div>
-
     <div class="flex flex-col md:flex-row gap-6">
         <!-- Account Sidebar -->
         <div class="w-full md:w-1/4">
@@ -138,7 +106,6 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-
         <!-- Main Content -->
         <div class="w-full md:w-3/4">
             <div class="wood-card overflow-hidden">
@@ -157,21 +124,20 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
                                 </ul>
                             </div>
                         <?php endif; ?>
-                        
                         <form method="POST">
                             <div class="mb-6">
                                 <label for="username" class="wood-label block text-amber-900 font-medium mb-2">Username</label>
-                                <input type="text" class="wood-input w-full px-4 py-2 rounded-md focus:ring focus:ring-amber-200" 
+                                <input type="text" class="wood-input w-full px-4 py-2 rounded-md focus:ring focus:ring-amber-200"
                                        id="username" name="username" value="<?= htmlspecialchars($user['username']) ?>" required>
                             </div>
                             <div class="mb-6">
                                 <label for="email" class="wood-label block text-amber-900 font-medium mb-2">Email</label>
-                                <input type="email" class="wood-input w-full px-4 py-2 rounded-md focus:ring focus:ring-amber-200" 
+                                <input type="email" class="wood-input w-full px-4 py-2 rounded-md focus:ring focus:ring-amber-200"
                                        id="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
                             </div>
                             <div class="mb-6">
                                 <label for="password" class="wood-label block text-amber-900 font-medium mb-2">New Password (leave blank to keep current)</label>
-                                <input type="password" class="wood-input w-full px-4 py-2 rounded-md focus:ring focus:ring-amber-200" 
+                                <input type="password" class="wood-input w-full px-4 py-2 rounded-md focus:ring focus:ring-amber-200"
                                        id="password" name="password">
                                 <p class="text-sm text-amber-700 mt-1">Password must be at least 6 characters long</p>
                             </div>
@@ -190,5 +156,4 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
         </div>
     </div>
 </div>
-
 <?php require_once 'includes/footer.php'; ?>

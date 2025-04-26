@@ -1,18 +1,12 @@
 <?php
 require_once 'includes/auth.php';
 require_once '../includes/db.php';
-
-// Start the session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
 requireAdmin();
-
-// Set maximum file size for uploads (e.g., 2MB)
-$maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
+$maxFileSize = 2 * 1024 * 1024;
 $error = null;
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'];
     $description = $_POST['description'];
@@ -23,27 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $ram_type = isset($_POST['ram_type']) ? $_POST['ram_type'] : null;
     $wattage = isset($_POST['wattage']) ? $_POST['wattage'] : null;
     $form_factor = isset($_POST['form_factor']) ? $_POST['form_factor'] : null;
-    
-    // Handle image upload
     $image = 'default.png';
     if (isset($_FILES['image']) && $_FILES['image']['error'] != UPLOAD_ERR_NO_FILE) {
         if ($_FILES['image']['size'] > $maxFileSize) {
             $error = 'Error: File size exceeds the maximum limit of 2MB.';
         } else {
             $target_dir = "../assets/images/products/";
-            
-            // Create directory if it doesn't exist
             if (!file_exists($target_dir)) {
                 mkdir($target_dir, 0777, true);
             }
-            
             $target_file = $target_dir . basename($_FILES["image"]["name"]);
             $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-            
-            // Check if image file is a actual image
             $check = getimagesize($_FILES["image"]["tmp_name"]);
             if ($check !== false) {
-                // Generate unique filename
                 $image = $category . '_' . uniqid() . '.' . $imageFileType;
                 move_uploaded_file($_FILES["image"]["tmp_name"], $target_dir . $image);
             } else {
@@ -51,21 +37,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     }
-
     if (!$error) {
         $stmt = $pdo->prepare("INSERT INTO products (name, description, price, stock, category, image, socket_type, ram_type, wattage, form_factor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$name, $description, $price, $stock, $category, $image, $socket_type, $ram_type, $wattage, $form_factor]);
-        
         header("Location: products.php");
         exit();
     }
 }
-
-// Get all categories for select dropdown
 $categoryStmt = $pdo->query("SELECT DISTINCT category FROM products ORDER BY category");
 $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,7 +81,7 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-amber-200">
-                        <i class="fas fa-user-shield mr-1"></i> 
+                        <i class="fas fa-user-shield mr-1"></i>
                         <?= htmlspecialchars($_SESSION['username']) ?>
                     </span>
                     <a href="../logout.php" class="nav-link text-amber-200 hover:text-white transition-colors">
@@ -110,10 +91,8 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
             </div>
         </div>
     </header>
-
     <div class="flex flex-col md:flex-row min-h-screen bg-amber-50 flex-grow">
         <?php require_once 'includes/sidebar.php'; ?>
-        
         <main class="flex-1 p-6">
             <div class="wood-breadcrumbs mb-6">
                 <div class="wood-breadcrumb-item">
@@ -129,7 +108,6 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
                     Add Product
                 </div>
             </div>
-            
             <div class="wood-card overflow-hidden rounded-lg shadow-md mb-8">
                 <div class="wooden-texture-overlay"></div>
                 <div class="p-4 bg-amber-800 text-white">
@@ -143,30 +121,26 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
                             <p><?= $error ?></p>
                         </div>
                     <?php endif; ?>
-                    
                     <form method="post" enctype="multipart/form-data" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="name" class="block text-amber-900 font-semibold mb-2">Product Name</label>
-                                <input type="text" class="form-input w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                                <input type="text" class="form-input w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                     id="name" name="name" required>
                             </div>
-                            
                             <div>
                                 <label for="price" class="block text-amber-900 font-semibold mb-2">Price ($)</label>
-                                <input type="number" step="0.01" min="0" class="form-input w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                                <input type="number" step="0.01" min="0" class="form-input w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                     id="price" name="price" required>
                             </div>
-                            
                             <div>
                                 <label for="stock" class="block text-amber-900 font-semibold mb-2">Stock Quantity</label>
-                                <input type="number" min="0" class="form-input w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                                <input type="number" min="0" class="form-input w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                     id="stock" name="stock" required>
                             </div>
-                            
                             <div>
                                 <label for="category" class="block text-amber-900 font-semibold mb-2">Category</label>
-                                <select class="form-select w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                                <select class="form-select w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                     id="category" name="category" required onchange="showSpecificFields()">
                                     <option value="" disabled selected>Select a category</option>
                         <option value="CPU">CPU</option>
@@ -184,19 +158,17 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
                                 </select>
                             </div>
                         </div>
-                        
                         <div>
                             <label for="description" class="block text-amber-900 font-semibold mb-2">Description</label>
-                            <textarea class="form-textarea w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                            <textarea class="form-textarea w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                 id="description" name="description" rows="4" required></textarea>
                         </div>
-                        
                         <!-- Category-specific fields -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Socket type field (for CPU/Motherboard) -->
                             <div id="socket_type_div" class="hidden">
                                 <label for="socket_type" class="block text-amber-900 font-semibold mb-2">Socket Type</label>
-                                <select class="form-select w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                                <select class="form-select w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                     id="socket_type" name="socket_type">
                                     <option value="">N/A</option>
                                     <option value="LGA1700">LGA1700</option>
@@ -205,29 +177,26 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
                                     <option value="AM5">AM5</option>
                                 </select>
                             </div>
-                            
                             <!-- RAM type field (for RAM/Motherboard) -->
                             <div id="ram_type_div" class="hidden">
                                 <label for="ram_type" class="block text-amber-900 font-semibold mb-2">RAM Type</label>
-                                <select class="form-select w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                                <select class="form-select w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                     id="ram_type" name="ram_type">
                                     <option value="">N/A</option>
                                     <option value="DDR4">DDR4</option>
                                     <option value="DDR5">DDR5</option>
                                 </select>
                             </div>
-                            
                             <!-- Wattage field (for Power Supply/GPU) -->
                             <div id="wattage_div" class="hidden">
                                 <label for="wattage" class="block text-amber-900 font-semibold mb-2">Wattage</label>
-                                <input type="number" min="0" class="form-input w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                                <input type="number" min="0" class="form-input w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                     id="wattage" name="wattage">
                             </div>
-                            
                             <!-- Form factor field (for Case/Motherboard) -->
                             <div id="form_factor_div" class="hidden">
                                 <label for="form_factor" class="block text-amber-900 font-semibold mb-2">Form Factor</label>
-                                <select class="form-select w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" 
+                                <select class="form-select w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                                     id="form_factor" name="form_factor">
                                     <option value="">N/A</option>
                                     <option value="ATX">ATX</option>
@@ -236,7 +205,6 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
                     </select>
                 </div>
                         </div>
-                        
                         <div>
                             <label for="image" class="block text-amber-900 font-semibold mb-2">Product Image</label>
                             <div class="flex items-center justify-center w-full">
@@ -256,7 +224,6 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="flex justify-end space-x-4 pt-4">
                             <a href="products.php" class="wooden-cart-button inline-flex items-center px-4 py-2 bg-amber-800 text-white">
                                 <i class="fas fa-arrow-left mr-2 text-black"></i> Cancel
@@ -270,7 +237,6 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
             </div>
         </main>
     </div>
-
     <!-- Admin Footer -->
     <footer class="wooden-footer mt-auto relative overflow-hidden">
         <div class="wooden-texture-footer absolute inset-0 z-0"></div>
@@ -290,34 +256,24 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
     </div>
 </div>
     </footer>
-
     <script>
     $(document).ready(function() {
-        // Add wood texture to cards
         $('.wood-card').each(function() {
             if (!$(this).find('.wooden-texture-footer').length) {
                 $(this).prepend('<div class="wooden-texture-footer absolute inset-0 z-0 opacity-10"></div>');
             }
         });
-        
-        // Image preview
         $('#image').change(function(e) {
             if (e.target.files && e.target.files[0]) {
                 var reader = new FileReader();
-                
                 reader.onload = function(e) {
                     $('#preview').attr('src', e.target.result);
                     $('#imagePreview').removeClass('hidden');
                 }
-                
                 reader.readAsDataURL(e.target.files[0]);
             }
         });
-        
-        // Animate the dashboard cards
         $('.wood-card').addClass('fade-in');
-        
-        // Add hover effects to buttons
         $('.wooden-cart-button').hover(
             function() {
                 $(this).find('i').animate({ marginRight: '12px' }, 200);
@@ -327,19 +283,12 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
             }
         );
     });
-    
-    // Show/hide category-specific fields
     function showSpecificFields() {
-        // Get the selected category
         var category = document.getElementById('category').value;
-        
-        // Hide all specific fields first
         document.getElementById('socket_type_div').classList.add('hidden');
         document.getElementById('ram_type_div').classList.add('hidden');
         document.getElementById('wattage_div').classList.add('hidden');
         document.getElementById('form_factor_div').classList.add('hidden');
-        
-        // Show fields based on category
         if (category === 'CPU') {
             document.getElementById('socket_type_div').classList.remove('hidden');
         } else if (category === 'Motherboard') {

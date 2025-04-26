@@ -7,7 +7,6 @@
                 <i class="fas fa-tools mr-2"></i> Admin Panel
             </h2>
         </div>
-        
         <div class="p-4">
             <div class="mb-4">
                 <div class="text-center">
@@ -20,7 +19,6 @@
                     <div class="wooden-divider my-3"></div>
                 </div>
             </div>
-            
             <nav>
                 <ul class="nav flex-col space-y-1">
                     <li class="nav-item">
@@ -43,9 +41,7 @@
                             <i class="fas fa-users mr-3 text-amber-800"></i> Users
                         </a>
                     </li>
-                    
                     <div class="wooden-divider my-3"></div>
-                    
                     <li class="nav-item">
                         <a class="wooden-cart-button w-full py-3 px-4 flex items-center justify-center my-2" href="../index.php">
                             <i class="fas fa-store mr-2"></i> View Store
@@ -61,26 +57,21 @@
         </div>
     </div>
 </div>
-
 <style>
     .active-nav-link {
-        background-color: #f59e0b;
+        background-color:
         color: white;
     }
-    
     .active-nav-link i {
         color: white !important;
     }
-    
     .nav-item a:hover i {
         transform: translateX(3px);
         transition: transform 0.2s ease;
     }
 </style>
-
 <script>
 $(document).ready(function() {
-    // Add hover animation to sidebar links
     $('.wood-nav-link').hover(
         function() {
             $(this).find('i').css('transform', 'translateX(3px)');

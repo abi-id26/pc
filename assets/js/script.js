@@ -8,13 +8,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
     // Form validation for checkout
     const checkoutForm = document.querySelector('form[method="post"]');
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', function(e) {
-            let isValid = true;
-            
+            let isValid = true;            
             // Validate all required fields
             this.querySelectorAll('[required]').forEach(field => {
                 if (!field.value.trim()) {
@@ -24,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     field.classList.remove('is-invalid');
                 }
             });
-            
             // Validate credit card number
             const ccNumber = document.getElementById('cc-number');
             if (ccNumber && !/^\d{13,16}$/.test(ccNumber.value.replace(/\s/g, ''))) {
@@ -32,8 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ccNumber.classList.add('is-invalid');
             } else if (ccNumber) {
                 ccNumber.classList.remove('is-invalid');
-            }
-            
+            }            
             // Validate CVV
             const cvv = document.getElementById('cc-cvv');
             if (cvv && !/^\d{3,4}$/.test(cvv.value)) {
@@ -41,8 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cvv.classList.add('is-invalid');
             } else if (cvv) {
                 cvv.classList.remove('is-invalid');
-            }
-            
+            }            
             if (!isValid) {
                 e.preventDefault();
                 // Scroll to first invalid field
@@ -52,8 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-    }
-    
+    } 
     // Toast notifications (for future enhancements)
     const toastElList = [].slice.call(document.querySelectorAll('.toast'));
     const toastList = toastElList.map(function(toastEl) {

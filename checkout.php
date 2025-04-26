@@ -1,13 +1,8 @@
 <?php
 require_once 'includes/db.php';
-
-// Start session if not already started
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
-// Redirect if cart is empty
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) { header("Location: cart.php"); exit(); }
-// Get cart items
 $cart_items = []; $total = 0; $shipping = 10.00; $tax_rate = 0.07;
-
 foreach ($_SESSION['cart'] as $id => $item) {
     $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
     $stmt->execute([$id]);
@@ -19,37 +14,26 @@ foreach ($_SESSION['cart'] as $id => $item) {
         $cart_items[] = $product;
     }
 }
-
 $tax = $total * $tax_rate;
 $grand_total = $total + $shipping + $tax;
-
-// Handle checkout
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     try {
-        // Log checkout information
         error_log("Processing checkout. User ID: " . $_SESSION['user_id'] . ", Total: " . $grand_total);
         error_log("POST data: " . print_r($_POST, true));
         error_log("Session data: " . print_r($_SESSION, true));
-        
         $pdo->beginTransaction();
-        // Create order
         $stmt = $pdo->prepare("INSERT INTO orders (user_id, total) VALUES (?, ?)");
         $stmt->execute([$_SESSION['user_id'], $grand_total]);
         $order_id = $pdo->lastInsertId();
-        
         if (!$order_id) {
             throw new Exception("Failed to create order - no order ID returned");
         }
-        
         error_log("Order created with ID: " . $order_id);
-        // Add order items
         $stmt = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
         foreach ($cart_items as $item) {
             $stmt->execute([$order_id, $item['id'], $item['quantity'], $item['price']]);
             error_log("Added item to order: Product ID " . $item['id'] . ", Quantity " . $item['quantity']);
         }
-        
-        // Save shipping address
         if (isset($_POST['firstName']) && isset($_POST['lastName']) && isset($_POST['address'])) {
             error_log("Saving shipping address for order " . $order_id);
             $stmt = $pdo->prepare("INSERT INTO shipping_addresses (order_id, first_name, last_name, address, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -63,17 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
                 $_POST['zip'] ?? ''
             ]);
         }
-        
         $pdo->commit();
         error_log("Order transaction committed successfully");
         // Clear cart
         unset($_SESSION['cart']);
-        
-        // Store the order ID in session
         $_SESSION['last_order_id'] = $order_id;
-        
         error_log("Redirecting to order confirmation page for order " . $order_id);
-        // Use JavaScript to redirect to avoid common header already sent issues
         echo "<script>window.location.href = 'order_confirmation.php?id=" . $order_id . "';</script>";
         exit();
     } catch (Exception $e) {
@@ -82,11 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
         $error = "There was an error processing your order. Please try again: " . $e->getMessage();
     }
 }
-
-// Include header after all potential redirects
 require_once 'includes/header.php';
 ?>
-
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumbs -->
     <div class="wood-breadcrumbs mb-6">
@@ -94,9 +70,7 @@ require_once 'includes/header.php';
         <div class="wood-breadcrumb-item"> <a href="cart.php"><i class="fas fa-shopping-cart"></i> Cart</a> </div>
         <div class="wood-breadcrumb-item active">Checkout</div>
     </div>
-    
     <h1 class="page-title text-2xl mb-6">Secure Checkout</h1>
-    
     <div class="flex flex-col lg:flex-row gap-8">
         <!-- Left Column - Form -->
         <div class="w-full lg:w-2/3">
@@ -112,7 +86,6 @@ require_once 'includes/header.php';
                             <p><i class="fas fa-exclamation-circle mr-2"></i> <?= $error ?></p>
                         </div>
                     <?php endif; ?>
-                    
                     <?php if (!isset($_SESSION['user_id'])): ?>
                         <div class="bg-amber-50 border-l-4 border-amber-500 text-amber-700 p-4 mb-6 rounded">
                             <p><i class="fas fa-info-circle mr-2"></i> Please <a href="login.php" class="text-amber-800 font-bold hover:underline">login</a> or <a href="register.php" class="text-amber-800 font-bold hover:underline">register</a> to complete your purchase.</p>
@@ -177,8 +150,8 @@ require_once 'includes/header.php';
                                             <option>31 - Oran</option>
                                             <option>32 - El Bayadh</option>
                                             <option>33 - Illizi</option>
-                                            <option>34 - Bordj Bou Arreridj</option> 
-                                            <option>35 - Boumerdès</option> 
+                                            <option>34 - Bordj Bou Arreridj</option>
+                                            <option>35 - Boumerdès</option>
                                             <option>36 - El Taref</option>
                                             <option>37 - Tindouf</option>
                                             <option>38 - Tissemsilt</option>
@@ -189,19 +162,19 @@ require_once 'includes/header.php';
                                             <option>43 - Mila</option>
                                             <option>44 - Aïn Defla</option>
                                             <option>45 - Naâma</option>
-                                            <option>46 - Aïn Témouchent</option> 
+                                            <option>46 - Aïn Témouchent</option>
                                             <option>47 - Ghardaïa</option>
                                             <option>48 - Relizane</option>
                                             <option>49 - Timimoun</option>
                                             <option>50 - Bordj Badji Mokhtar</option>
                                             <option>51 - Ouled Djellal</option>
-                                            <option>52 - Béni Abbès</option> 
+                                            <option>52 - Béni Abbès</option>
                                             <option>53 - In Salah</option>
                                             <option>54 - In Guezzam</option>
                                             <option>55 - Touggourt</option>
-                                            <option>56 - Djanet</option> 
-                                            <option>57 - El M'Ghair</option> 
-                                            <option>58 - El Menia</option>  
+                                            <option>56 - Djanet</option>
+                                            <option>57 - El M'Ghair</option>
+                                            <option>58 - El Menia</option>
                                         </select>
                                     </div>
                                     <div>
@@ -210,9 +183,7 @@ require_once 'includes/header.php';
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="wooden-divider my-6"></div>
-                            
                             <h4 class="wood-card-title text-lg mb-4 pb-2 border-b border-amber-200">
                                 <i class="fas fa-credit-card mr-2"></i> Payment Information
                             </h4>
@@ -237,9 +208,7 @@ require_once 'includes/header.php';
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="wooden-divider my-6"></div>
-                            
                             <div class="text-center">
                                 <button type="submit" class="wooden-cart-button bg-green-700 w-full py-4">
                                     <i class="fas fa-lock mr-2 text-black"></i>
@@ -268,8 +237,8 @@ require_once 'includes/header.php';
                             <div class="flex justify-between items-center pb-3 border-b border-amber-100">
                                 <div class="flex items-center">
                                     <div class="w-12 h-12 bg-amber-50 rounded overflow-hidden mr-3 border border-amber-200 flex-shrink-0">
-                                        <img src="assets/images/products/<?= htmlspecialchars($item['image']) ?>" 
-                                             class="w-full h-full object-contain" 
+                                        <img src="assets/images/products/<?= htmlspecialchars($item['image']) ?>"
+                                             class="w-full h-full object-contain"
                                              alt="<?= htmlspecialchars($item['name']) ?>">
                                     </div>
                                     <div>
@@ -283,7 +252,6 @@ require_once 'includes/header.php';
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between border-b border-amber-100 pb-2">
                             <span class="text-amber-800">Subtotal:</span>
@@ -302,9 +270,7 @@ require_once 'includes/header.php';
                             <span class="text-amber-900">$<?= number_format($grand_total, 2) ?></span>
                         </div>
                     </div>
-                    
                     <div class="wooden-divider my-6"></div>
-                    
                     <!-- Shipping Methods -->
                     <h4 class="wood-card-title text-sm mb-3">Shipping Method</h4>
                     <div class="space-y-2 mb-6">
@@ -321,7 +287,6 @@ require_once 'includes/header.php';
                             <p class="text-xs text-amber-700 mt-1">Delivery in 1-2 business days (+$15.00)</p>
                         </label>
                     </div>
-                    
                     <!-- Promo Code -->
                     <h4 class="wood-card-title text-sm mb-3">Promo Code</h4>
                     <div class="flex">
@@ -335,15 +300,11 @@ require_once 'includes/header.php';
         </div>
     </div>
 </div>
-
 <script>
 $(document).ready(function() {
-    // Add wood texture to cards
     $('.wood-card').each(function() {
         $(this).prepend('<div class="wooden-texture-footer absolute inset-0 z-0 opacity-10"></div>');
     });
-    
-    // Enhance form inputs with wooden styling
     $('.wood-input').each(function() {
         $(this).css({
             'background-color': '#f5e0c0',
@@ -367,49 +328,39 @@ $(document).ready(function() {
             'box-shadow': 'none'
         });
     });
-    
-    // Credit card input formatting
     $('#cc-number').on('input', function() {
         let value = $(this).val().replace(/\D/g, '');
         let formattedValue = '';
-        
         for (let i = 0; i < value.length; i++) {
             if (i > 0 && i % 4 === 0) {
                 formattedValue += ' ';
             }
             formattedValue += value[i];
         }
-        
         $(this).val(formattedValue);
     });
-    
     // Expiration date formatting
-    $('#cc-expiration').on('input', function() {
+    $('
         let value = $(this).val().replace(/\D/g, '');
         let formattedValue = '';
-        
         if (value.length > 0) {
             formattedValue = value.substring(0, 2);
             if (value.length > 2) {
                 formattedValue += '/' + value.substring(2, 4);
             }
         }
-        
         $(this).val(formattedValue);
     });
-    
     // CVV input limits
-    $('#cc-cvv').on('input', function() {
+    $('
         let value = $(this).val().replace(/\D/g, '');
         $(this).val(value.substring(0, 3));
     });
-    
     // ZIP code input limits
-    $('#zip').on('input', function() {
+    $('
         let value = $(this).val().replace(/\D/g, '');
         $(this).val(value.substring(0, 5));
     });
-    
     // Radio button custom styling
     $('input[type="radio"]').each(function() {
         $(this).css({
@@ -419,5 +370,4 @@ $(document).ready(function() {
     });
 });
 </script>
-
 <?php require_once 'includes/footer.php'; ?>

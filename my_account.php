@@ -1,30 +1,23 @@
 <?php
 require_once 'includes/db.php';
 require_once 'includes/header.php';
-
-// Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
-// Get user details
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// Get user's orders (last 5)
 $stmt = $pdo->prepare("
-    SELECT id, total, created_at, status 
-    FROM orders 
-    WHERE user_id = ? 
-    ORDER BY created_at DESC 
+    SELECT id, total, created_at, status
+    FROM orders
+    WHERE user_id = ?
+    ORDER BY created_at DESC
     LIMIT 5
 ");
 $stmt->execute([$_SESSION['user_id']]);
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <div class="container mx-auto px-4 py-8">
     <div class="wood-breadcrumbs mb-6">
         <div class="wood-breadcrumb-item">
@@ -34,7 +27,6 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             My Account
         </div>
     </div>
-
     <div class="flex flex-col md:flex-row gap-6">
         <!-- Account Sidebar -->
         <div class="w-full md:w-1/4">
@@ -74,7 +66,6 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-
         <!-- Main Content -->
         <div class="w-full md:w-3/4">
             <div class="wood-card overflow-hidden">
@@ -100,7 +91,6 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </div>
                             </div>
                         </div>
-
                         <!-- Recent Orders -->
                         <div>
                             <h5 class="flex items-center text-lg text-amber-900"><i class="fas fa-shopping-bag mr-2"></i> Recent Orders</h5>
@@ -112,7 +102,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <table class="w-full min-w-full">
                                         <thead>
                                             <tr class="bg-amber-50">
-                                                <th class="px-4 py-2 text-left text-amber-800">Order #</th>
+                                                <th class="px-4 py-2 text-left text-amber-800">Order
                                                 <th class="px-4 py-2 text-left text-amber-800">Date</th>
                                                 <th class="px-4 py-2 text-left text-amber-800">Total</th>
                                                 <th class="px-4 py-2 text-left text-amber-800">Status</th>
@@ -126,8 +116,8 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <td class="px-4 py-3"><?= date('M j, Y', strtotime($order['created_at'])) ?></td>
                                                     <td class="px-4 py-3">$<?= number_format($order['total'], 2) ?></td>
                                                     <td class="px-4 py-3">
-                                                        <span class="inline-block px-2 py-1 rounded text-white text-xs <?= 
-                                                            ($order['status'] == 'completed') ? 'bg-green-600' : 
+                                                        <span class="inline-block px-2 py-1 rounded text-white text-xs <?=
+                                                            ($order['status'] == 'completed') ? 'bg-green-600' :
                                                             (($order['status'] == 'cancelled') ? 'bg-red-600' : 'bg-amber-600')
                                                         ?>">
                                                             <?= ucfirst($order['status']) ?>
@@ -156,5 +146,4 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 </div>
-
 <?php require_once 'includes/footer.php'; ?>

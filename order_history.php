@@ -1,19 +1,15 @@
 <?php
 require_once 'includes/db.php';
 require_once 'includes/header.php';
-
-// Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
-// Fetch orders with product names and status
 $stmt = $pdo->prepare("
-    SELECT 
-        o.id, 
-        o.total, 
-        o.created_at, 
+    SELECT
+        o.id,
+        o.total,
+        o.created_at,
         o.status,
         COUNT(oi.id) AS item_count,
         GROUP_CONCAT(p.name SEPARATOR ' | ') AS product_names
@@ -27,7 +23,6 @@ $stmt = $pdo->prepare("
 $stmt->execute([$_SESSION['user_id']]);
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <div class="container mx-auto px-4 py-8">
     <div class="wood-breadcrumbs mb-6">
         <div class="wood-breadcrumb-item">
@@ -40,7 +35,6 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             Order History
         </div>
     </div>
-
     <div class="flex flex-col md:flex-row gap-6">
         <!-- Account Sidebar -->
         <div class="w-full md:w-1/4">
@@ -79,7 +73,6 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-
         <!-- Main Content -->
         <div class="w-full md:w-3/4">
             <div class="wood-card overflow-hidden">
@@ -107,14 +100,14 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <a href="order_details.php?id=<?= $order['id'] ?>" class="wood-card p-4 hover:bg-amber-50 transition-colors block">
                                         <div class="flex flex-col md:flex-row justify-between">
                         <div>
-                                                <h5 class="text-lg font-bold text-amber-900 mb-1">Order #<?= $order['id'] ?></h5>
+                                                <h5 class="text-lg font-bold text-amber-900 mb-1">Order ?></h5>
                                                 <div class="text-amber-700 text-sm mb-2">
                                 <?= date('M j, Y \a\t g:i A', strtotime($order['created_at'])) ?>
                                                 </div>
                                                 <div class="mt-2 flex flex-wrap gap-2 items-center">
-                                                    <span class="inline-block px-2 py-1 rounded text-white text-xs <?= 
-                                                        ($order['status'] == 'cancelled') ? 'bg-red-600' : 
-                                                        (($order['status'] == 'completed') ? 'bg-green-600' : 'bg-amber-600') 
+                                                    <span class="inline-block px-2 py-1 rounded text-white text-xs <?=
+                                                        ($order['status'] == 'cancelled') ? 'bg-red-600' :
+                                                        (($order['status'] == 'completed') ? 'bg-green-600' : 'bg-amber-600')
                                 ?>">
                                     <?= ucfirst($order['status']) ?>
                                 </span>
@@ -143,5 +136,4 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 </div>
-
 <?php require_once 'includes/footer.php'; ?>

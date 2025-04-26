@@ -3,15 +3,9 @@ $host = 'localhost';
 $dbname = 'pc_hardware_store';
 $username = 'root';
 $password = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database: " . $e->getMessage());
-}
-
-// Create tables if they don't exist
+try { $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) { die("Could not connect to the database: " . $e->getMessage()); }
 $pdo->exec("
     CREATE TABLE IF NOT EXISTS products (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -27,7 +21,6 @@ $pdo->exec("
         form_factor VARCHAR(50) NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-    
     CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(50) NOT NULL UNIQUE,
@@ -37,7 +30,6 @@ $pdo->exec("
         active TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-    
     CREATE TABLE IF NOT EXISTS orders (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT,
@@ -46,7 +38,6 @@ $pdo->exec("
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id)
     );
-    
     CREATE TABLE IF NOT EXISTS order_items (
         id INT AUTO_INCREMENT PRIMARY KEY,
         order_id INT,
@@ -56,7 +47,6 @@ $pdo->exec("
         FOREIGN KEY (order_id) REFERENCES orders(id),
         FOREIGN KEY (product_id) REFERENCES products(id)
     );
-    
     CREATE TABLE IF NOT EXISTS shipping_addresses (
         id INT AUTO_INCREMENT PRIMARY KEY,
         order_id INT,
@@ -69,8 +59,6 @@ $pdo->exec("
         FOREIGN KEY (order_id) REFERENCES orders(id)
     );
 ");
-
-// Insert sample products if the table is empty
 $stmt = $pdo->query("SELECT COUNT(*) FROM products");
 if ($stmt->fetchColumn() == 0) {
     $sampleProducts = [
@@ -105,7 +93,6 @@ if ($stmt->fetchColumn() == 0) {
         ['Cooler Master MasterBox Q300L', 'Micro-ATX Case', 49.99, 'Cooler Master MasterBox Q300L.webp', 'Case', 20, null, null, null, 'Micro-ATX'],
         ['Thermaltake Versa H18', 'Micro-ATX Case', 39.99, 'Thermaltake Versa H18.webp', 'Case', 25, null, null, null, 'Micro-ATX']
     ];
-    
     $insert = $pdo->prepare("INSERT INTO products (name, description, price, image, category, stock, socket_type, ram_type, wattage, form_factor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     foreach ($sampleProducts as $product) {
         $insert->execute($product);

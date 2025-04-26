@@ -1,51 +1,39 @@
 <?php
 require_once 'includes/db.php';
 require_once 'includes/header.php';
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-    
-    // Validate inputs
     $errors = [];
-    
     if (empty($username)) {
         $errors[] = "Username is required";
     } elseif (strlen($username) < 4) {
         $errors[] = "Username must be at least 4 characters";
     }
-    
     if (empty($email)) {
         $errors[] = "Email is required";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Invalid email format";
     }
-    
     if (empty($password)) {
         $errors[] = "Password is required";
     } elseif (strlen($password) < 6) {
         $errors[] = "Password must be at least 6 characters";
     }
-    
     if ($password !== $confirm_password) {
         $errors[] = "Passwords do not match";
     }
-    
-    // Check if username or email already exists
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ? OR email = ?");
     $stmt->execute([$username, $email]);
     if ($stmt->fetchColumn() > 0) {
         $errors[] = "Username or email already exists";
     }
-    
     if (empty($errors)) {
-        // Insert new user
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
         $stmt->execute([$username, $email, $hashed_password]);
-        
         $_SESSION['user_id'] = $pdo->lastInsertId();
         $_SESSION['username'] = $username;
         header("Location: index.php");
@@ -53,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-
 <div class="container mx-auto px-4 py-8">
     <!-- Breadcrumbs -->
     <div class="wood-breadcrumbs mb-6">
@@ -64,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             Register
         </div>
     </div>
-
     <div class="max-w-lg mx-auto">
         <div class="wood-card overflow-hidden fade-in">
             <div class="bg-amber-800 py-4 px-6 border-b border-amber-700">
@@ -81,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </ul>
                     </div>
                 <?php endif; ?>
-                
                 <form method="post">
                     <div class="wood-input-group mb-6">
                         <label for="username" class="wood-label flex items-center">
@@ -125,7 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </button>
                     </div>
                 </form>
-                
                 <div class="text-center">
                     <div class="wooden-divider mb-4"></div>
                     <p class="text-amber-900">Already have an account? <a href="login.php" class="text-amber-700 font-bold hover:underline">Login here</a></p>
@@ -134,26 +118,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </div>
-
 <script>
 $(document).ready(function() {
-    // Add wood texture to cards
     $('.wood-card').each(function() {
         $(this).prepend('<div class="wooden-texture-footer absolute inset-0 z-0 opacity-10"></div>');
     });
-    
-    // Focus effect for inputs
     $('.wood-input').focus(function() {
         $(this).parents('.wood-input-group').addClass('focused');
     }).blur(function() {
         $(this).parents('.wood-input-group').removeClass('focused');
     });
-    
-    // Password strength visual indicator
     $('#password').on('input', function() {
         let password = $(this).val();
         let strength = 0;
-        
         if (password.length >= 6) {
             strength += 1;
         }
@@ -166,7 +143,6 @@ $(document).ready(function() {
         if (password.match(/[^A-Za-z0-9]/)) {
             strength += 1;
         }
-        
         let strengthBar = '';
         for (let i = 0; i < 4; i++) {
             if (i < strength) {
@@ -175,15 +151,11 @@ $(document).ready(function() {
                 strengthBar += '<div class="h-2 w-full bg-gray-200 rounded"></div>';
             }
         }
-        
-        if ($('#password-strength').length === 0) {
+        if ($('
             $(this).after('<div id="password-strength" class="grid grid-cols-4 gap-1 mt-2"></div>');
         }
-        
         $('#password-strength').html(strengthBar);
     });
-    
-    // Animate register button on hover
     $('.wooden-cart-button').hover(
         function() {
             $(this).find('i').addClass('fa-bounce');
@@ -194,5 +166,4 @@ $(document).ready(function() {
     );
 });
 </script>
-
 <?php require_once 'includes/footer.php'; ?>

@@ -1,23 +1,19 @@
 <?php
 require_once 'includes/db.php';
 require_once 'includes/header.php';
-
 if (!isset($_GET['id'])) {
     header("Location: index.php");
     exit();
 }
-
 $product_id = $_GET['id'];
 $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
 $stmt->execute([$product_id]);
 $product = $stmt->fetch(PDO::FETCH_ASSOC);
-
 if (!$product) {
     header("Location: index.php");
     exit();
 }
 ?>
-
 <div class="container mx-auto px-4 py-6">
     <!-- Breadcrumbs -->
     <div class="wood-breadcrumbs mb-6">
@@ -31,7 +27,6 @@ if (!$product) {
             <?= htmlspecialchars($product['name']) ?>
         </div>
     </div>
-
     <div class="flex flex-wrap -mx-4">
         <!-- Product Image -->
         <div class="w-full md:w-1/2 px-4 mb-6 md:mb-0">
@@ -39,26 +34,20 @@ if (!$product) {
                 <img src="assets/images/products/<?= htmlspecialchars($product['image']) ?>" class="w-full object-contain h-80" alt="<?= htmlspecialchars($product['name']) ?>">
             </div>
         </div>
-        
         <!-- Product Details -->
         <div class="w-full md:w-1/2 px-4">
             <div class="wood-card p-6">
                 <div class="card-content">
                     <h1 class="text-3xl font-bold text-wood-dark mb-2"><?= htmlspecialchars($product['name']) ?></h1>
-                    
                     <div class="mb-4">
                         <span class="wood-badge"><?= htmlspecialchars($product['category']) ?></span>
                     </div>
-                    
                     <h3 class="wood-price text-2xl mb-6">$<?= number_format($product['price'], 2) ?></h3>
-                    
                     <div class="wooden-divider"></div>
-                    
                     <div class="mb-6">
                         <h5 class="wood-card-title">Description</h5>
                         <p class="wood-card-text"><?= htmlspecialchars($product['description']) ?></p>
                     </div>
-                    
                     <form action="add_to_cart.php" method="post" class="mb-6">
                         <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                         <div class="flex flex-wrap items-center gap-4">
@@ -76,18 +65,16 @@ if (!$product) {
                             </button>
                         </div>
                     </form>
-                    
                     <div class="wooden-divider"></div>
-                    
                     <div class="wood-card bg-opacity-50 p-4 mt-4">
                         <h5 class="wood-card-title">Product Details</h5>
                         <ul class="space-y-2 mt-4">
                             <li class="flex items-center py-2 border-b border-wood-tan">
-                                <strong class="w-1/3 text-wood-dark">Category:</strong> 
+                                <strong class="w-1/3 text-wood-dark">Category:</strong>
                                 <span><?= htmlspecialchars($product['category']) ?></span>
                             </li>
                             <li class="flex items-center py-2">
-                                <strong class="w-1/3 text-wood-dark">Availability:</strong> 
+                                <strong class="w-1/3 text-wood-dark">Availability:</strong>
                                 <span><?= $product['stock'] > 0 ? '<span class="text-green-600">In Stock</span>' : '<span class="text-red-600">Out of Stock</span>' ?></span>
                             </li>
                         </ul>
@@ -96,7 +83,6 @@ if (!$product) {
             </div>
         </div>
     </div>
-    
     <!-- Related Products -->
     <div class="mt-12">
         <h3 class="page-title text-2xl mb-6">Related Products</h3>
@@ -105,7 +91,6 @@ if (!$product) {
             $stmt = $pdo->prepare("SELECT * FROM products WHERE category = ? AND id != ? LIMIT 4");
             $stmt->execute([$product['category'], $product['id']]);
             $relatedProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
             foreach ($relatedProducts as $related): ?>
                 <div class="wood-card animated-card">
                     <div class="card-content p-4">
@@ -125,10 +110,8 @@ if (!$product) {
         </div>
     </div>
 </div>
-
 <script>
     $(document).ready(function() {
-        // Add animation to product cards
         $('.animated-card').hover(
             function() {
                 $(this).addClass('shadow-hover');
@@ -137,8 +120,6 @@ if (!$product) {
                 $(this).removeClass('shadow-hover');
             }
         );
-        
-        // Add animation to the add to cart button
         $('.wooden-cart-button').click(function() {
             $(this).addClass('added-to-cart');
             setTimeout(function() {
@@ -147,5 +128,4 @@ if (!$product) {
         });
     });
 </script>
-
 <?php require_once 'includes/footer.php'; ?>
