@@ -1,0 +1,953 @@
+/* CSS Variables for Colors and Common Values */
+:root {
+  /* Wood Theme Colors */
+  --wood-dark: #5c4033;
+  --wood-medium: #714329;
+  --wood-light: #b08463;
+  --wood-lighter: #deb887;
+  --wood-lightest: #f5deb3;
+  --wood-tan: #f5e0c0;
+  --wood-accent: #c19a6b;
+  
+  /* Text Colors */
+  --text-dark: #5c4033;
+  --text-light: #f5deb3;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+  
+  /* Transitions */
+  --transition-fast: all 0.2s ease;
+  --transition-normal: all 0.3s ease;
+  --transition-smooth: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 25px;
+}
+
+/* Custom styles that complement Tailwind CSS */
+
+/* Product Cards */
+.product-image {
+    height: 200px;
+    object-fit: contain;
+    padding: 20px;
+}
+
+/* Animation classes for jQuery effects */
+.animated-card {
+    transition: var(--transition-smooth);
+}
+
+.animated-card:hover {
+    transform: translateY(-10px);
+}
+
+/* Enhanced shadow effects */
+.shadow-hover {
+    transition: var(--transition-normal);
+}
+
+.shadow-hover:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+/* Smooth button transitions */
+.btn-transition {
+    transition: var(--transition-fast);
+}
+
+/* Truncate text to specific number of lines */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Animation for form elements */
+input:focus, select:focus, textarea:focus {
+    transition: var(--transition-fast);
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .product-image {
+        height: 150px;
+    }
+}
+
+/* Wooden Cart Button Styles */
+/* Button Container */
+.wooden-cart-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 15px 30px;
+  border: none;
+  background: linear-gradient(to bottom, var(--wood-lightest), var(--wood-lighter));
+  border-radius: var(--radius-xl);
+  box-shadow:
+    inset 0 5px 10px rgba(255, 255, 255, 0.5),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.2),
+    0 5px 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  transform: perspective(500px) rotateX(5deg);
+  transform-style: preserve-3d;
+  width: 100%;
+  justify-content: center;
+}
+
+/* Wood grain texture */
+.wooden-cart-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(139, 90, 43, 0.1) 25%,
+    transparent 25%,
+    transparent 75%,
+    rgba(139, 90, 43, 0.1) 75%
+  );
+  background-size: 10px 10px;
+  opacity: 0.5;
+  border-radius: var(--radius-xl);
+  transition: var(--transition-normal);
+  transform: translateZ(-1px);
+}
+
+/* SVG Icon */
+.wooden-cart-button svg {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+  fill: var(--wood-dark);
+  transition: var(--transition-smooth);
+  transform: translateZ(10px);
+}
+
+/* Text */
+.button-text {
+  position: relative;
+  z-index: 1;
+  color: var(--wood-dark);
+  font-weight: bold;
+  font-size: 16px;
+  transition: var(--transition-smooth);
+  transform: translateZ(10px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover State */
+.wooden-cart-button:hover {
+  transform: perspective(500px) rotateX(0deg) translateY(-3px);
+  box-shadow:
+    inset 0 6px 12px rgba(255, 255, 255, 0.6),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.25),
+    0 8px 20px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(to bottom, var(--wood-tan), var(--wood-accent));
+}
+
+.wooden-cart-button:hover svg {
+  transform: translateZ(15px) scale(1.2) rotate(5deg);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+.wooden-cart-button:hover .button-text {
+  transform: translateZ(15px) translateX(5px);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Active/Clicked State */
+.wooden-cart-button:active {
+  transform: perspective(500px) rotateX(2deg) translateY(2px);
+  box-shadow:
+    inset 0 3px 6px rgba(255, 255, 255, 0.3),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to bottom, var(--wood-accent), var(--wood-medium));
+}
+
+.wooden-cart-button:active svg {
+  transform: translateZ(5px) scale(0.9) rotate(-5deg);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+.wooden-cart-button:active .button-text {
+  transform: translateZ(5px) translateY(1px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Colors inspired by the provided color palette */
+.wood-brown-primary {
+  background: var(--wood-medium);
+  color: var(--text-light);
+}
+
+.wood-brown-secondary {
+  background: var(--wood-light);
+  color: var(--text-light);
+}
+
+.wood-brown-light {
+  background: var(--wood-lighter);
+  color: var(--wood-dark);
+}
+
+.wood-tan-light {
+  background: var(--wood-tan);
+  color: var(--wood-dark);
+}
+
+.wood-tan-pale {
+  background: var(--wood-lightest);
+  color: var(--wood-dark);
+}
+
+/* Added enhancement for wooden theme elements */
+.added-to-cart {
+  animation: addedToCart 0.5s ease;
+}
+
+@keyframes addedToCart {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-15px); }
+  50% { transform: translateY(-5px); }
+  75% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+/* Wooden theme backgrounds and effects */
+.wood-background {
+  background-image: 
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.1)),
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%235c4033' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+/* Wooden border styles */
+.wood-border {
+  border: 2px solid var(--wood-light);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Wooden input styles */
+input.wood-input {
+  background-color: var(--wood-tan);
+  border: 1px solid var(--wood-light);
+  box-shadow: 
+    inset 0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.1);
+  color: var(--wood-dark);
+}
+
+input.wood-input:focus {
+  border-color: var(--wood-medium);
+  box-shadow: 
+    inset 0 1px 3px rgba(0, 0, 0, 0.1),
+    0 0 0 3px rgba(113, 67, 41, 0.2);
+  outline: none;
+}
+
+/* Wooden Header Styles */
+.wooden-header {
+  background: linear-gradient(to bottom, #deb887, #b08463);
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  position: relative;
+  z-index: 100;
+}
+
+.wooden-texture-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(139, 90, 43, 0.05) 10px,
+      rgba(139, 90, 43, 0.05) 20px
+    );
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.wooden-texture {
+  opacity: 0.8;
+  background-size: 100px 100px;
+  background-position: center;
+  border-bottom: 3px solid #714329;
+}
+
+.store-logo {
+  transition: all 0.3s ease;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.store-logo:hover {
+  transform: scale(1.05);
+}
+
+.store-badge {
+  position: relative;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.badge-hover {
+  background-color: #5c4033 !important;
+  transform: rotate(5deg) scale(1.1);
+}
+
+/* Navigation Links */
+.nav-link {
+  color: #5c4033;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link:before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #714329;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover:before {
+  width: 100%;
+}
+
+.nav-hover {
+  background-color: rgba(208, 185, 167, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Wooden Dropdown Menu */
+.wooden-dropdown {
+  background: linear-gradient(to bottom, #f5deb3, #deb887);
+  border: 1px solid #714329;
+  border-radius: 8px;
+  box-shadow:
+    0 5px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.dropdown-item {
+  color: #5c4033;
+  padding: 10px 16px;
+  font-weight: 500;
+  display: block;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(176, 132, 99, 0.3);
+  padding-left: 20px;
+}
+
+.dropdown-hover {
+  color: #714329;
+  background-color: rgba(176, 132, 99, 0.3);
+  font-weight: bold;
+}
+
+/* Cart Count Badge */
+.cart-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #714329;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-left: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.cart-link:hover .cart-count {
+  transform: scale(1.2);
+  background-color: #5c4033;
+}
+
+/* Mobile Menu Button */
+.wooden-button {
+  background: linear-gradient(to bottom, #deb887, #b08463);
+  color: #5c4033;
+  border-radius: 8px;
+  border: 1px solid #714329;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.wooden-button:hover {
+  background: linear-gradient(to bottom, #e0c49c, #c19a6b);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Wooden Footer Styles */
+.wooden-footer {
+  background: linear-gradient(to bottom, #5c4033, #714329);
+  color: #f5deb3;
+  border-top: 3px solid #b08463;
+  box-shadow: 
+    inset 0 5px 10px rgba(0, 0, 0, 0.3),
+    0 -3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.wooden-texture-footer {
+  opacity: 0.2;
+  background-size: 100px 100px;
+  background-position: center;
+  background-blend-mode: overlay;
+}
+
+.footer-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f5deb3;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+.footer-title:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, #b08463, transparent);
+  border-radius: 3px;
+}
+
+.footer-links {
+  margin-top: 1.5rem;
+}
+
+.footer-links li {
+  margin-bottom: 0.75rem;
+}
+
+.footer-link {
+  color: #d0b9a7;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.footer-link:hover {
+  color: #f5deb3;
+  transform: translateX(5px);
+}
+
+.footer-contact li {
+  color: #d0b9a7;
+}
+
+.contact-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(176, 132, 99, 0.3);
+  border-radius: 50%;
+  margin-right: 12px;
+  color: #f5deb3;
+  flex-shrink: 0;
+}
+
+.social-icons {
+  display: flex;
+  gap: 12px;
+}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(to bottom, #b08463, #714329);
+  border-radius: 50%;
+  color: #f5deb3;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 2px 5px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.social-icon:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(to bottom, #deb887, #b08463);
+  box-shadow: 
+    0 5px 10px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.wooden-divider {
+  height: 3px;
+  background: linear-gradient(to right, transparent, #b08463, transparent);
+  margin: 20px 0;
+  border-radius: 3px;
+  position: relative;
+}
+
+.wooden-divider:before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 12px;
+  background: #b08463;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.footer-bottom {
+  color: #d0b9a7;
+}
+
+.copyright p {
+  font-size: 0.875rem;
+}
+
+.payment-methods p {
+  font-size: 0.875rem;
+  color: #f5deb3;
+}
+
+.payment-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 30px;
+  background: rgba(176, 132, 99, 0.3);
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+}
+
+.payment-icon-hover {
+  transform: translateY(-3px);
+  background: rgba(176, 132, 99, 0.5);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.wooden-plank {
+  height: 12px;
+  background: linear-gradient(to right, #b08463, #deb887, #b08463);
+  border-radius: 6px;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.wooden-plank:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 15px,
+      rgba(0, 0, 0, 0.05) 15px,
+      rgba(0, 0, 0, 0.05) 20px
+    );
+  border-radius: 6px;
+}
+
+/* Main Content Wooden Theme */
+.page-title {
+  color: #714329;
+  font-weight: 800;
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+
+.page-title:after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, #714329, #deb887, transparent);
+  border-radius: 3px;
+}
+
+.wood-card {
+  background: linear-gradient(to bottom, #f5deb3, #deb887);
+  border-radius: 12px;
+  box-shadow: 
+    0 5px 15px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(176, 132, 99, 0.3);
+  position: relative;
+}
+
+.wood-card:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(139, 90, 43, 0.03) 10px,
+      rgba(139, 90, 43, 0.03) 20px
+    );
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.wood-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 
+    0 15px 30px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.card-content {
+  position: relative;
+  z-index: 1;
+}
+
+.wood-card-title {
+  color: #5c4033;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.wood-card-title:after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: #b08463;
+  margin-top: 5px;
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+.wood-card:hover .wood-card-title:after {
+  width: 60px;
+}
+
+.wood-card-text {
+  color: #714329;
+  margin-bottom: 1rem;
+}
+
+.wood-badge {
+  background: #714329;
+  color: #f5deb3;
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.wood-price {
+  color: #5c4033;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+/* Wooden Form Elements */
+.wood-input-group {
+  margin-bottom: 1.5rem;
+}
+
+.wood-label {
+  display: block;
+  color: #5c4033;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.wood-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--wood-tan);
+  border: 1px solid var(--wood-light);
+  border-radius: var(--radius-md);
+  color: var(--wood-dark);
+  box-shadow: 
+    inset 0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: var(--transition-normal);
+}
+
+.wood-input:focus {
+  border-color: var(--wood-medium);
+  box-shadow: 
+    inset 0 1px 3px rgba(0, 0, 0, 0.1),
+    0 0 0 3px rgba(113, 67, 41, 0.2);
+  outline: none;
+}
+
+.wood-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%235c4033' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+.wood-checkbox {
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  display: inline-block;
+  color: var(--wood-dark);
+}
+
+.wood-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.wood-checkbox .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: var(--wood-tan);
+  border: 1px solid var(--wood-light);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.wood-checkbox:hover input ~ .checkmark {
+  background-color: var(--wood-lighter);
+}
+
+.wood-checkbox input:checked ~ .checkmark {
+  background-color: var(--wood-medium);
+}
+
+.wood-checkbox .checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--wood-lightest);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.wood-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Wooden Table */
+.wood-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.wood-table thead th {
+  background: linear-gradient(to bottom, var(--wood-medium), var(--wood-dark));
+  color: var(--wood-lightest);
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 2px solid var(--wood-light);
+}
+
+.wood-table tbody tr {
+  background-color: var(--wood-tan);
+  transition: var(--transition-fast);
+}
+
+.wood-table tbody tr:nth-child(even) {
+  background-color: var(--wood-lighter);
+}
+
+.wood-table tbody tr:hover {
+  background-color: var(--wood-lighter);
+}
+
+.wood-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(176, 132, 99, 0.3);
+  color: var(--wood-dark);
+}
+
+.wood-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Wooden Pagination */
+.wood-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.wood-page-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  margin: 0 0.25rem;
+  background: linear-gradient(to bottom, var(--wood-lightest), var(--wood-lighter));
+  color: var(--wood-dark);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--wood-light);
+  font-weight: 600;
+  transition: var(--transition-fast);
+  box-shadow: 
+    var(--shadow-sm),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.wood-page-link:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(to bottom, var(--wood-lighter), var(--wood-accent));
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.wood-page-link.active {
+  background: linear-gradient(to bottom, var(--wood-medium), var(--wood-dark));
+  color: var(--wood-lightest);
+  border-color: var(--wood-dark);
+}
+
+/* Wooden Breadcrumbs */
+.wood-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(222, 184, 135, 0.3);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--wood-medium);
+}
+
+.wood-breadcrumb-item {
+  display: flex;
+  align-items: center;
+  color: var(--wood-medium);
+}
+
+.wood-breadcrumb-item:not(:last-child):after {
+  content: '/';
+  margin: 0 0.75rem;
+  color: var(--wood-light);
+}
+
+.wood-breadcrumb-item a {
+  color: var(--wood-dark);
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.wood-breadcrumb-item a:hover {
+  color: var(--wood-medium);
+  text-decoration: underline;
+}
+
+.wood-breadcrumb-item.active {
+  font-weight: 700;
+  color: var(--wood-medium);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .product-image {
+    height: 150px;
+  }
+  
+  .wooden-cart-button {
+    padding: 12px 24px;
+  }
+  
+  .wood-table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .wood-breadcrumbs {
+    padding: 0.5rem;
+  }
+  
+  .wood-page-link {
+    min-width: 35px;
+    height: 35px;
+    font-size: 0.875rem;
+  }
+}
